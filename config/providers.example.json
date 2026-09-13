@@ -1,0 +1,16 @@
+{
+  "_note": "Copy to providers.json and fill keys. serve.py hydrates empty settings from that file. Do not commit providers.json.",
+  "llm": {
+    "provider": "openai-compatible",
+    "base_url": "https://openrouter.ai/api/v1",
+    "model": "anthropic/claude-sonnet-4.5",
+    "api_key": "",
+    "temperature": 0.9
+  },
+  "tts": { "provider": "omnivoice" },
+  "omnivoice": {
+    "base_url": "http://127.0.0.1:9192",
+    "guidance_scale": 2.0,
+    "language": "auto"
+  }
+}

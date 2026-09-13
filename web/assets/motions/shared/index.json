@@ -1,0 +1,1325 @@
+[
+ {
+  "name": "anger-01_lv01",
+  "file": "anger-01_lv01.motion3.json",
+  "duration": 1.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "anger-01_lv03",
+  "file": "anger-01_lv03.motion3.json",
+  "duration": 1.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "anger-01_lv05",
+  "file": "anger-01_lv05.motion3.json",
+  "duration": 1.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "anger-02_lv01",
+  "file": "anger-02_lv01.motion3.json",
+  "duration": 2.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "anger-02_lv03",
+  "file": "anger-02_lv03.motion3.json",
+  "duration": 2.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "anger-02_lv05",
+  "file": "anger-02_lv05.motion3.json",
+  "duration": 2.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "anger-03_lv01",
+  "file": "anger-03_lv01.motion3.json",
+  "duration": 2.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "anger-03_lv03",
+  "file": "anger-03_lv03.motion3.json",
+  "duration": 2.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "anger-03_lv05",
+  "file": "anger-03_lv05.motion3.json",
+  "duration": 2.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "appeal-01_lv03",
+  "file": "appeal-01_lv03.motion3.json",
+  "duration": 3.267,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "appeal-02_lv03",
+  "file": "appeal-02_lv03.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "blink-01_lv03",
+  "file": "blink-01_lv03.motion3.json",
+  "duration": 0.467,
+  "curves": 2,
+  "loop": false
+ },
+ {
+  "name": "bow-01_lv03",
+  "file": "bow-01_lv03.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "contact-l-01_lv03",
+  "file": "contact-l-01_lv03.motion3.json",
+  "duration": 2.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "contact-l-02_lv03",
+  "file": "contact-l-02_lv03.motion3.json",
+  "duration": 2.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "contact-r-01_lv03",
+  "file": "contact-r-01_lv03.motion3.json",
+  "duration": 2.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "contact-r-02_lv03",
+  "file": "contact-r-02_lv03.motion3.json",
+  "duration": 2.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "cough-01_lv03",
+  "file": "cough-01_lv03.motion3.json",
+  "duration": 2.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "cough-02_lv03",
+  "file": "cough-02_lv03.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "cough-03_lv03",
+  "file": "cough-03_lv03.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "cry-01_lv01",
+  "file": "cry-01_lv01.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "cry-01_lv03",
+  "file": "cry-01_lv03.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "dance-01_lv03",
+  "file": "dance-01_lv03.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "dance-02_lv03",
+  "file": "dance-02_lv03.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "deep-breath-01_lv01",
+  "file": "deep-breath-01_lv01.motion3.json",
+  "duration": 5.267,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "deep-breath-01_lv03",
+  "file": "deep-breath-01_lv03.motion3.json",
+  "duration": 5.133,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "deep-breath-01_lv05",
+  "file": "deep-breath-01_lv05.motion3.json",
+  "duration": 5.133,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "deep-breath-02_lv03",
+  "file": "deep-breath-02_lv03.motion3.json",
+  "duration": 3.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "default-01_lv03",
+  "file": "default-01_lv03.motion3.json",
+  "duration": 0.033,
+  "curves": 36,
+  "loop": false
+ },
+ {
+  "name": "default-02_lv03",
+  "file": "default-02_lv03.motion3.json",
+  "duration": 0.033,
+  "curves": 38,
+  "loop": false
+ },
+ {
+  "name": "default-03_lv03",
+  "file": "default-03_lv03.motion3.json",
+  "duration": 0.033,
+  "curves": 36,
+  "loop": false
+ },
+ {
+  "name": "disappoint-01_lv03",
+  "file": "disappoint-01_lv03.motion3.json",
+  "duration": 1.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "doya-01_lv01",
+  "file": "doya-01_lv01.motion3.json",
+  "duration": 2.267,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "doya-01_lv03",
+  "file": "doya-01_lv03.motion3.json",
+  "duration": 2.133,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "doya-01_lv05",
+  "file": "doya-01_lv05.motion3.json",
+  "duration": 2.133,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "happy-01_lv01",
+  "file": "happy-01_lv01.motion3.json",
+  "duration": 2.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "happy-01_lv03",
+  "file": "happy-01_lv03.motion3.json",
+  "duration": 2.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "happy-01_lv05",
+  "file": "happy-01_lv05.motion3.json",
+  "duration": 2.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "happy-02_lv01",
+  "file": "happy-02_lv01.motion3.json",
+  "duration": 2.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "happy-02_lv03",
+  "file": "happy-02_lv03.motion3.json",
+  "duration": 2.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "happy-02_lv05",
+  "file": "happy-02_lv05.motion3.json",
+  "duration": 2.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "idle-01_lv01_lp",
+  "file": "idle-01_lv01_lp.motion3.json",
+  "duration": 5.333,
+  "curves": 36,
+  "loop": true
+ },
+ {
+  "name": "idle-01_lv03_lp",
+  "file": "idle-01_lv03_lp.motion3.json",
+  "duration": 5.333,
+  "curves": 36,
+  "loop": true
+ },
+ {
+  "name": "idle-01_lv05_lp",
+  "file": "idle-01_lv05_lp.motion3.json",
+  "duration": 4.933,
+  "curves": 36,
+  "loop": true
+ },
+ {
+  "name": "joy-01_lv01",
+  "file": "joy-01_lv01.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "joy-01_lv02",
+  "file": "joy-01_lv02.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "joy-01_lv03",
+  "file": "joy-01_lv03.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "joy-01_lv04",
+  "file": "joy-01_lv04.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "joy-01_lv05",
+  "file": "joy-01_lv05.motion3.json",
+  "duration": 2.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "joy-02_lv04",
+  "file": "joy-02_lv04.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "joy-03_lv04",
+  "file": "joy-03_lv04.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "joy-04_lv03",
+  "file": "joy-04_lv03.motion3.json",
+  "duration": 3.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "joy-05_lv01",
+  "file": "joy-05_lv01.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "joy-05_lv02",
+  "file": "joy-05_lv02.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "joy-05_lv03",
+  "file": "joy-05_lv03.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "joy-05_lv04",
+  "file": "joy-05_lv04.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "joy-05_lv05",
+  "file": "joy-05_lv05.motion3.json",
+  "duration": 2.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "joy-06_lv03",
+  "file": "joy-06_lv03.motion3.json",
+  "duration": 3.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "lipsync-00_lp",
+  "file": "lipsync-00_lp.motion3.json",
+  "duration": 5.0,
+  "curves": 2,
+  "loop": true
+ },
+ {
+  "name": "lipsync-01_lp",
+  "file": "lipsync-01_lp.motion3.json",
+  "duration": 5.0,
+  "curves": 2,
+  "loop": true
+ },
+ {
+  "name": "listen-l_01_lv03",
+  "file": "listen-l_01_lv03.motion3.json",
+  "duration": 2.467,
+  "curves": 36,
+  "loop": false
+ },
+ {
+  "name": "listen-r_01_lv03",
+  "file": "listen-r_01_lv03.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "look-around-01_lv01",
+  "file": "look-around-01_lv01.motion3.json",
+  "duration": 4.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "look-around-01_lv03",
+  "file": "look-around-01_lv03.motion3.json",
+  "duration": 4.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "look-around-01_lv05",
+  "file": "look-around-01_lv05.motion3.json",
+  "duration": 4.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "look-around-02_lv01",
+  "file": "look-around-02_lv01.motion3.json",
+  "duration": 4.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "look-around-02_lv03",
+  "file": "look-around-02_lv03.motion3.json",
+  "duration": 4.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "look-around-02_lv05",
+  "file": "look-around-02_lv05.motion3.json",
+  "duration": 3.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "look-around-03_lv01",
+  "file": "look-around-03_lv01.motion3.json",
+  "duration": 4.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "look-around-03_lv03",
+  "file": "look-around-03_lv03.motion3.json",
+  "duration": 4.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "look-around-03_lv05",
+  "file": "look-around-03_lv05.motion3.json",
+  "duration": 3.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "motivate-01_lv01",
+  "file": "motivate-01_lv01.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "motivate-01_lv02",
+  "file": "motivate-01_lv02.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "motivate-01_lv03",
+  "file": "motivate-01_lv03.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "motivate-01_lv04",
+  "file": "motivate-01_lv04.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "motivate-01_lv05",
+  "file": "motivate-01_lv05.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "no-01_lv01",
+  "file": "no-01_lv01.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "no-01_lv03",
+  "file": "no-01_lv03.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "no-01_lv05",
+  "file": "no-01_lv05.motion3.json",
+  "duration": 2.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "no-02_lv01",
+  "file": "no-02_lv01.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "no-02_lv03",
+  "file": "no-02_lv03.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "no-02_lv05",
+  "file": "no-02_lv05.motion3.json",
+  "duration": 2.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "no-03_lv01",
+  "file": "no-03_lv01.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "no-03_lv03",
+  "file": "no-03_lv03.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "no-03_lv05",
+  "file": "no-03_lv05.motion3.json",
+  "duration": 2.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "notice-01_lv01",
+  "file": "notice-01_lv01.motion3.json",
+  "duration": 2.133,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "notice-01_lv03",
+  "file": "notice-01_lv03.motion3.json",
+  "duration": 2.133,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "notice-01_lv05",
+  "file": "notice-01_lv05.motion3.json",
+  "duration": 2.133,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "provoke-01_lv03",
+  "file": "provoke-01_lv03.motion3.json",
+  "duration": 2.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "provoke-02_lv03",
+  "file": "provoke-02_lv03.motion3.json",
+  "duration": 2.967,
+  "curves": 37,
+  "loop": false
+ },
+ {
+  "name": "question-01_lv01",
+  "file": "question-01_lv01.motion3.json",
+  "duration": 2.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "question-01_lv03",
+  "file": "question-01_lv03.motion3.json",
+  "duration": 2.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "question-01_lv05",
+  "file": "question-01_lv05.motion3.json",
+  "duration": 2.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "question-02_lv03",
+  "file": "question-02_lv03.motion3.json",
+  "duration": 2.267,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "sad-01_lv01",
+  "file": "sad-01_lv01.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "sad-01_lv03",
+  "file": "sad-01_lv03.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "sad-01_lv05",
+  "file": "sad-01_lv05.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "shout-01_lv03",
+  "file": "shout-01_lv03.motion3.json",
+  "duration": 1.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "shout-02_lv03",
+  "file": "shout-02_lv03.motion3.json",
+  "duration": 1.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "shy-01_lv01",
+  "file": "shy-01_lv01.motion3.json",
+  "duration": 1.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "shy-01_lv02",
+  "file": "shy-01_lv02.motion3.json",
+  "duration": 2.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "shy-01_lv03",
+  "file": "shy-01_lv03.motion3.json",
+  "duration": 2.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "shy-01_lv04",
+  "file": "shy-01_lv04.motion3.json",
+  "duration": 2.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "shy-01_lv05",
+  "file": "shy-01_lv05.motion3.json",
+  "duration": 1.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "shy-02_lv01",
+  "file": "shy-02_lv01.motion3.json",
+  "duration": 1.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "shy-02_lv02",
+  "file": "shy-02_lv02.motion3.json",
+  "duration": 3.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "shy-02_lv03",
+  "file": "shy-02_lv03.motion3.json",
+  "duration": 2.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "shy-02_lv05",
+  "file": "shy-02_lv05.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "shy-03_lv01",
+  "file": "shy-03_lv01.motion3.json",
+  "duration": 1.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "shy-03_lv02",
+  "file": "shy-03_lv02.motion3.json",
+  "duration": 3.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "shy-03_lv03",
+  "file": "shy-03_lv03.motion3.json",
+  "duration": 2.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "shy-03_lv05",
+  "file": "shy-03_lv05.motion3.json",
+  "duration": 3.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "shy-04_lv01",
+  "file": "shy-04_lv01.motion3.json",
+  "duration": 1.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "shy-04_lv02",
+  "file": "shy-04_lv02.motion3.json",
+  "duration": 3.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "shy-04_lv03",
+  "file": "shy-04_lv03.motion3.json",
+  "duration": 2.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "shy-04_lv05",
+  "file": "shy-04_lv05.motion3.json",
+  "duration": 3.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "shy-05_lv03",
+  "file": "shy-05_lv03.motion3.json",
+  "duration": 2.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "shy-06_lv05",
+  "file": "shy-06_lv05.motion3.json",
+  "duration": 1.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "sleepy-01_lv03",
+  "file": "sleepy-01_lv03.motion3.json",
+  "duration": 3.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "sleepy-04_lv03_lp",
+  "file": "sleepy-04_lv03_lp.motion3.json",
+  "duration": 5.333,
+  "curves": 35,
+  "loop": true
+ },
+ {
+  "name": "sleepy-05_lv03",
+  "file": "sleepy-05_lv03.motion3.json",
+  "duration": 2.3,
+  "curves": 36,
+  "loop": false
+ },
+ {
+  "name": "smile-01_lv01",
+  "file": "smile-01_lv01.motion3.json",
+  "duration": 2.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "smile-01_lv02",
+  "file": "smile-01_lv02.motion3.json",
+  "duration": 2.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "smile-01_lv03",
+  "file": "smile-01_lv03.motion3.json",
+  "duration": 2.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "smile-01_lv04",
+  "file": "smile-01_lv04.motion3.json",
+  "duration": 2.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "smile-01_lv05",
+  "file": "smile-01_lv05.motion3.json",
+  "duration": 2.133,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "smile-02_lv01",
+  "file": "smile-02_lv01.motion3.json",
+  "duration": 3.133,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "smile-02_lv03",
+  "file": "smile-02_lv03.motion3.json",
+  "duration": 3.133,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "smile-02_lv05",
+  "file": "smile-02_lv05.motion3.json",
+  "duration": 2.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "smile-03_lv01",
+  "file": "smile-03_lv01.motion3.json",
+  "duration": 3.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "smile-03_lv03",
+  "file": "smile-03_lv03.motion3.json",
+  "duration": 3.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "smile-03_lv05",
+  "file": "smile-03_lv05.motion3.json",
+  "duration": 3.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "smile-04_lv03",
+  "file": "smile-04_lv03.motion3.json",
+  "duration": 3.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "smile-05_lv01",
+  "file": "smile-05_lv01.motion3.json",
+  "duration": 3.133,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "smile-05_lv03",
+  "file": "smile-05_lv03.motion3.json",
+  "duration": 3.133,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "smile-05_lv05",
+  "file": "smile-05_lv05.motion3.json",
+  "duration": 2.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "smile-06_lv01",
+  "file": "smile-06_lv01.motion3.json",
+  "duration": 2.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "smile-06_lv02",
+  "file": "smile-06_lv02.motion3.json",
+  "duration": 2.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "smile-06_lv03",
+  "file": "smile-06_lv03.motion3.json",
+  "duration": 2.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "smile-06_lv04",
+  "file": "smile-06_lv04.motion3.json",
+  "duration": 2.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "smile-06_lv05",
+  "file": "smile-06_lv05.motion3.json",
+  "duration": 2.133,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "surprise-01_lv01",
+  "file": "surprise-01_lv01.motion3.json",
+  "duration": 2.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "surprise-01_lv03",
+  "file": "surprise-01_lv03.motion3.json",
+  "duration": 2.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "surprise-01_lv05",
+  "file": "surprise-01_lv05.motion3.json",
+  "duration": 2.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "surprise-02_lv01",
+  "file": "surprise-02_lv01.motion3.json",
+  "duration": 3.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "surprise-02_lv03",
+  "file": "surprise-02_lv03.motion3.json",
+  "duration": 3.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "surprise-02_lv05",
+  "file": "surprise-02_lv05.motion3.json",
+  "duration": 3.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "surprise-03_lv01",
+  "file": "surprise-03_lv01.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "surprise-03_lv03",
+  "file": "surprise-03_lv03.motion3.json",
+  "duration": 2.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "surprise-03_lv05",
+  "file": "surprise-03_lv05.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "surprise-04_lv01",
+  "file": "surprise-04_lv01.motion3.json",
+  "duration": 3.3,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "surprise-04_lv03",
+  "file": "surprise-04_lv03.motion3.json",
+  "duration": 2.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "surprise-04_lv05",
+  "file": "surprise-04_lv05.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "tear-01_lv03",
+  "file": "tear-01_lv03.motion3.json",
+  "duration": 3.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "think-01_lv01",
+  "file": "think-01_lv01.motion3.json",
+  "duration": 2.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "think-01_lv03",
+  "file": "think-01_lv03.motion3.json",
+  "duration": 2.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "think-01_lv05",
+  "file": "think-01_lv05.motion3.json",
+  "duration": 2.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "turn-l-01_lv01",
+  "file": "turn-l-01_lv01.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "turn-l-01_lv03",
+  "file": "turn-l-01_lv03.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "turn-l-01_lv05",
+  "file": "turn-l-01_lv05.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "turn-l-02_lv01",
+  "file": "turn-l-02_lv01.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "turn-l-02_lv03",
+  "file": "turn-l-02_lv03.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "turn-l-02_lv05",
+  "file": "turn-l-02_lv05.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "turn-l-03_lv01",
+  "file": "turn-l-03_lv01.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "turn-l-03_lv03",
+  "file": "turn-l-03_lv03.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "turn-l-03_lv05",
+  "file": "turn-l-03_lv05.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "turn-l-04_lv01",
+  "file": "turn-l-04_lv01.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "turn-l-04_lv03",
+  "file": "turn-l-04_lv03.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "turn-l-04_lv05",
+  "file": "turn-l-04_lv05.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "turn-r-01_lv01",
+  "file": "turn-r-01_lv01.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "turn-r-01_lv03",
+  "file": "turn-r-01_lv03.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "turn-r-01_lv05",
+  "file": "turn-r-01_lv05.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "turn-r-02_lv01",
+  "file": "turn-r-02_lv01.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "turn-r-02_lv03",
+  "file": "turn-r-02_lv03.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "turn-r-02_lv05",
+  "file": "turn-r-02_lv05.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "turn-u-01_lv03",
+  "file": "turn-u-01_lv03.motion3.json",
+  "duration": 3.267,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "wink-01_lv01",
+  "file": "wink-01_lv01.motion3.json",
+  "duration": 1.967,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "wink-01_lv02",
+  "file": "wink-01_lv02.motion3.json",
+  "duration": 2.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "wink-01_lv03",
+  "file": "wink-01_lv03.motion3.json",
+  "duration": 2.633,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "wink-01_lv05",
+  "file": "wink-01_lv05.motion3.json",
+  "duration": 2.133,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "yes-01_lv01",
+  "file": "yes-01_lv01.motion3.json",
+  "duration": 2.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "yes-01_lv03",
+  "file": "yes-01_lv03.motion3.json",
+  "duration": 2.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "yes-01_lv05",
+  "file": "yes-01_lv05.motion3.json",
+  "duration": 2.8,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "yes-02_lv01",
+  "file": "yes-02_lv01.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "yes-02_lv02",
+  "file": "yes-02_lv02.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "yes-02_lv03",
+  "file": "yes-02_lv03.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "yes-02_lv04",
+  "file": "yes-02_lv04.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "yes-02_lv05",
+  "file": "yes-02_lv05.motion3.json",
+  "duration": 2.467,
+  "curves": 35,
+  "loop": false
+ },
+ {
+  "name": "yes-03_lv03",
+  "file": "yes-03_lv03.motion3.json",
+  "duration": 2.8,
+  "curves": 35,
+  "loop": false
+ }
+]

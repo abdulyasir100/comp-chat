@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Companion Chat</title>
+<link rel="stylesheet" href="css/app.css?v=cc7">
+</head>
+<body>
+<div id="phone">
+
+<div id="stage">
+  <canvas id="scene-canvas"></canvas>
+  <div id="avatar-hit"></div>
+  <div id="ripple-layer"></div>
+  <div id="vignette"></div>
+  <div id="scene-curtain"></div>
+  <div id="skin-veil"></div>
+</div>
+
+<!-- Official chrome (from the shipped screenshots):
+     one transparent top row — hamburger left, voice/text pill + » right.
+     The old two-row topbar/subbar HUD moved to the stage edges: apples/coin/
+     Lv bottom-left, round quick buttons bottom-right, conversation in a
+     bottom log panel, and the side menu (ショップ…ワールドマップにもどる)
+     slides in on the right. -->
+<header id="topbar">
+  <button class="icon-btn" id="btn-menu" title="Menu"><img src="assets/icons/drawer.svg" alt=""></button>
+  <div class="spacer"></div>
+  <button type="button" id="btn-voice" class="voice-pill" title="Voice / text">
+    <canvas id="lottie-voice" width="30" height="30"></canvas><img id="voice-text-ico" class="hidden" src="assets/icons/mode_text.svg" alt=""><span id="voice-pill-label">Voice</span>
+  </button>
+  <button class="icon-btn" id="btn-expand" title="Menu"><svg class="grid" width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2.5" y="2.5" width="7" height="7" rx="2"/><rect x="12.5" y="2.5" width="7" height="7" rx="2"/><rect x="2.5" y="12.5" width="7" height="7" rx="2"/><rect x="12.5" y="12.5" width="7" height="7" rx="2"/></svg><svg class="chev" width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 5l12 12M17 5L5 17"/></svg></button>
+</header>
+
+<!-- quick access (top-right): things that are safe to mis-tap -->
+<div id="side-scrim"></div>
+<div id="side-menu">
+  <button type="button" class="side-item" id="sm-save"><span data-i18n="nav.save">Save data</span><i class="round"><img src="assets/icons/save_data.svg" alt=""></i></button>
+  <button type="button" class="side-item" id="sm-full"><span data-i18n="nav.fullscreen">Fullscreen</span><i class="round"><img src="assets/icons/allscreen.svg" alt=""></i></button>
+  <button type="button" class="side-item" id="sm-chara"><span data-i18n="nav.toggleChara">Show / hide character</span><i class="round"><img src="assets/icons/chara_hide.svg" alt="" id="ico-toggle-chara"></i></button>
+</div>
+
+<nav id="drawer">
+  <div class="drawer-head">
+    <img id="drawer-avatar" src="assets/icons/chara.svg" alt="">
+    <div>
+      <div class="drawer-name" id="drawer-name">Companion</div>
+      <div class="drawer-sub" id="drawer-day">Day 1 together</div>
+    </div>
+  </div>
+  <ul class="drawer-list">
+    <li data-view="talk" class="active"><img src="assets/icons/chara.svg" alt=""> <span data-i18n="nav.talk">对话</span></li>
+    <li data-view="alarm"><img src="assets/icons/alarm.svg" alt=""> <span data-i18n="nav.alarm">闹钟</span></li>
+    <li data-action="lang"><img src="assets/icons/language.svg" alt=""> <span data-i18n="nav.lang">语言</span></li>
+    <li data-view="chara"><img src="assets/icons/profile.svg" alt=""> <span data-i18n="nav.profile">玩家档案</span></li>
+    <li data-view="memory"><img src="assets/icons/save_data.svg" alt=""> <span data-i18n="nav.memory">回忆</span></li>
+    <li data-action="newTalk"><img src="assets/icons/asterisk.svg" alt=""> <span data-i18n="nav.newTalk">新的对话</span></li>
+    <li data-view="settings"><img src="assets/icons/charaedit.svg" alt=""> <span data-i18n="nav.settings">设置</span></li>
+  </ul>
+  <div class="drawer-foot">Local-first · your own LLM and voice</div>
+</nav>
+<div id="scrim"></div>
+
+<main id="view-talk" class="view active">
+  <div id="quick-btns">
+    <button type="button" class="round-btn" id="btn-log-toggle" title="Conversation log"><img src="assets/icons/arrow_up.svg" alt=""></button>
+  </div>
+  <div id="log-panel">
+    <div id="log-head">
+      <img id="log-avatar" src="assets/icons/chara.svg" alt="">
+      <div id="log-ident">
+        <div id="log-name">Companion</div>
+        <div id="log-sub" title="Conversation mode">Free-flowing chat mode</div>
+      </div>
+    </div>
+    <div id="log-body">
+      <div id="bubble"><span id="bubble-text"></span></div>
+    </div>
+    <div id="log-dots"></div>
+    <div id="retry-bar" class="hidden">
+      <span data-i18n="talk.retryHint">连接失败了</span>
+      <button class="mini-btn" id="btn-retry" data-i18n="talk.retry">重试</button>
+    </div>
+    <div id="input-bar">
+      <button type="button" class="round-btn speed-btn" id="btn-speed" title="Text speed">×1</button>
+      <div class="input-pill">
+        <input id="input" type="text" placeholder="Ask me anything!" autocomplete="off">
+        <button type="button" id="btn-newtalk" title="New talk"><img src="assets/icons/asterisk.svg" alt=""></button>
+      </div>
+      <button type="button" id="btn-send" class="round-btn send-btn" title="Send"><img src="assets/icons/play.svg" alt="send"></button>
+    </div>
+  </div>
+</main>
+
+
+
+
+
+<section id="view-alarm" class="view">
+  <div class="view-head"><h2 data-i18n="alarm.title">闹钟</h2>
+    <button class="mini-btn" id="btn-alarm-new" data-i18n="alarm.new">+ New alarm</button></div>
+  <div id="alarm-list"></div>
+</section>
+
+<section id="view-chara" class="view">
+  <div class="view-head"><h2 data-i18n="chara.title">角色设定</h2>
+    <button class="mini-btn" id="btn-chara-skin" data-i18n="nav.skin">服装</button></div>
+  <div class="form-wrap" id="chara-form"></div>
+</section>
+
+
+<section id="view-memory" class="view">
+  <div class="view-head"><h2 data-i18n="memory.title">回忆</h2>
+    <div class="head-actions">
+      <button class="mini-btn" id="btn-memory-add" data-i18n="memory.add">添加</button>
+      <button class="mini-btn" id="btn-memory-flush" data-i18n="memory.flush">立即总结</button>
+      <button class="mini-btn" id="btn-memory-clear" data-i18n="memory.clearLog">清空对白</button>
+    </div>
+  </div>
+  <div id="memory-list"></div>
+</section>
+
+<section id="view-settings" class="view">
+  <div class="view-head"><h2 data-i18n="settings.title">设置</h2>
+    <button class="mini-btn" id="btn-settings-reset" data-i18n="settings.reset">Reset</button></div>
+  <div class="form-wrap" id="settings-form"></div>
+</section>
+
+<div id="toast-host"></div>
+
+<div id="modal-scrim" class="hidden">
+  <form id="modal" autocomplete="off">
+    <h3 id="modal-title"></h3>
+    <div id="modal-body"></div>
+    <div class="btn-row">
+      <button type="button" class="btn" id="modal-cancel" data-i18n="form.cancel">取消</button>
+      <button type="submit" class="btn primary" id="modal-ok" data-i18n="form.ok">确定</button>
+    </div>
+  </form>
+</div>
+
+<div id="sheet-mode" class="sheet hidden">
+  <div class="sheet-handle"></div>
+  <h3 data-i18n="mode.sheet">对话模式</h3>
+  <div id="mode-bar">
+    <button class="mode-pill" data-mode="chat"><img src="assets/icons/mode_chat.svg" alt=""><span data-i18n="mode.chat">雑談</span></button>
+    <button class="mode-pill" data-mode="story"><img src="assets/icons/mode_story.svg" alt=""><span data-i18n="mode.story">物語</span></button>
+    <button class="mode-pill" data-mode="immersive"><img src="assets/icons/mode_immersive.svg" alt=""><span data-i18n="mode.immersive">没入</span></button>
+    <button class="mode-pill" data-mode="asmr"><img src="assets/icons/mode_asmr.svg" alt=""><span data-i18n="mode.asmr">ASMR</span></button>
+    <button class="mode-pill" data-mode="text"><img src="assets/icons/mode_text.svg" alt=""><span data-i18n="mode.text">テキスト</span></button>
+    <span class="mode-sep"></span>
+    <button class="mode-pill style" data-style="voice"><span data-i18n="style.voice">🔊 音声</span></button>
+    <button class="mode-pill style" data-style="text"><span data-i18n="style.text">📝 文字</span></button>
+  </div>
+  <div class="sheet-scene">
+    <button type="button" class="hud-chip shrink" id="hud-place" title="Place">ライザの家</button>
+    <button type="button" class="hud-chip" id="hud-tod" title="Time of day">昼</button>
+    <button type="button" class="hud-chip" id="hud-mode" title="Conversation mode">雑談</button>
+    <button type="button" class="icon-btn" id="btn-map" title="World map"><img src="assets/icons/world_map.svg" alt=""></button>
+  </div>
+</div>
+
+
+
+
+<div id="sheet-lang" class="sheet hidden">
+  <div class="sheet-handle"></div>
+  <h3 data-i18n="nav.lang">语言</h3>
+  <div id="lang-list" class="lang-list"></div>
+</div>
+
+<div id="overlay-title" class="overlay">
+  <div class="title-sparkle"><canvas id="lottie-fire" width="96" height="96"></canvas></div>
+  <h1 id="title-name">Companion Chat</h1>
+  <p class="title-sub" id="title-sub">a local-first AI companion</p>
+  <button type="button" class="btn primary" id="btn-title-start" data-i18n="title.start" disabled>…</button>
+</div>
+
+<div id="overlay-onboard" class="overlay hidden">
+  <div class="onb-card">
+    <div id="onb-progress" class="onb-progress"></div>
+    <h2 id="onb-prompt"></h2>
+    <p id="onb-sub" class="onb-sub"></p>
+    <div id="onb-body"></div>
+    <div class="btn-row">
+      <button type="button" class="btn" id="onb-skip">Skip</button>
+      <button type="button" class="btn primary" id="onb-next">Next</button>
+    </div>
+  </div>
+</div>
+
+<div id="overlay-alarm" class="overlay hidden">
+  <div class="ring-card">
+    <div class="ring-time" id="ring-time">07:00</div>
+    <div class="ring-type" id="ring-type"></div>
+    <div class="btn-row">
+      <button type="button" class="btn" id="ring-snooze" data-i18n="alarm.snooze">贪睡</button>
+      <button type="button" class="btn primary" id="ring-dismiss" data-i18n="alarm.dismiss">关闭</button>
+    </div>
+  </div>
+</div>
+
+
+
+</div><!-- /phone -->
+
+<script src="vendor/spine-webgl.js"></script>
+<script src="vendor/live2dcubismcore.min.js"></script>
+<script src="vendor/cubism-framework.js"></script>
+<script src="vendor/jszip.min.js"></script>
+<script src="js/util.js?v=hash-2"></script>
+<script src="js/dialog.js?v=1"></script>
+<script src="js/config.js?v=cheat-1"></script>
+<script src="js/i18n.js?v=cheat-3"></script>
+<script src="js/api.js?v=undress-1"></script>
+<script src="js/memory.js?v=mem-1"></script>
+<script src="engine/store.js?v=1"></script>
+<script src="engine/affection.js?v=1"></script>
+<script src="engine/guard.js?v=1"></script>
+<script src="engine/reply.js?v=2"></script>
+<script src="engine/prompt.js?v=1"></script>
+<script src="engine/characters.js?v=4"></script>
+<script src="engine/packfs.js?v=1"></script>
+<script src="engine/capabilities.js?v=2"></script>
+<script src="engine/importer.js?v=2"></script>
+<script src="engine/providers/registry.js?v=1"></script>
+<script src="engine/providers/llm-openai.js?v=1"></script>
+<script src="engine/providers/tts-omnivoice.js?v=4"></script>
+<script src="engine/index.js?v=3"></script>
+<script src="renderers/stage.js?v=3"></script>
+<script src="renderers/spine.js?v=2"></script>
+<script src="renderers/cubism.js?v=6"></script>
+<script src="js/game.js?v=cheat-1"></script>
+<script src="js/quests.js?v=cheat-1"></script>
+<script src="js/avatar.js?v=emotion-keep-2"></script>
+<script src="js/nsfw.js?v=undress-1"></script>
+<script src="js/world.js?v=tag-fill-1"></script>
+<script src="js/audio.js?v=route-7"></script>
+<script src="js/alarm.js?v=vb-1"></script>
+<script src="js/onboarding.js?v=tut-3"></script>
+<script src="js/fx.js?v=1"></script>
+<script src="js/shell.js?v=1"></script>
+<script src="js/kbd.js?v=1"></script>
+<script src="js/app.js?v=cc9"></script>
+</body>
+</html>
