@@ -76,3 +76,9 @@ web/vendor/live2dcubismcore.min.js
 
 # Play Store marketing shots of the original app (reference only, Koei Tecmo)
 docs/reference/
+
+# Claude Code design-hook config (local tooling)
+.impeccable/
+# Private character cards (never published): assets/characters-private/<id>/character.json
+# listed in assets/characters-private/index.json; full builds include them, plain builds do not.
+web/assets/characters-private/

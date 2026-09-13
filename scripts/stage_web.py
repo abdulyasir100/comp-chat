@@ -12,8 +12,8 @@ local build would ship IP it must not. This copies:
       - assets/models/haru/**           (Live2D free sample model, Aria's pack)
       - assets/fonts/*.ttf              (Noto Sans JP + Hina Mincho, SIL OFL)
 
-Everything else under web/ (Ryza spine/audio/images, private models, imported
-packs, config) is left out. Output: output/web-stage (wiped every run).
+Everything else under web/ (Ryza spine/audio/images, private models, the
+gitignored assets/characters-private/ cards, imported packs, config) is left out. Output: output/web-stage (wiped every run).
 
 --full stages ALL of web/ verbatim (every gitignored media file, every card,
 no index rewrite): the personal build for the owner's own devices, with the

@@ -14,7 +14,10 @@
    }
 
    Built-in cards ship under web/assets/characters/<id>/character.json and are
-   listed by web/assets/characters/index.json. User-created or edited cards are
+   listed by web/assets/characters/index.json. A second, gitignored folder,
+   web/assets/characters-private/ (same layout, own index.json), holds cards
+   that must never be published; it is loaded after the public list when it
+   exists (dev checkout, personal -Full builds). User-created or edited cards are
    persisted in Store (global bucket "characters") and win over a built-in with
    the same id. The active id is Store global "active". */
 (function (global) {
@@ -65,14 +68,21 @@
       loadCustom();
       if (typeof fetch !== 'function') return Promise.resolve(0);
       var ids = [];
-      return fetchJson(base + 'index.json').then(function (list) {
-        ids = Array.isArray(list) ? list : [];
-        return Promise.all(ids.map(function (id) {
-          return fetchJson(base + id + '/character.json').then(function (card) {
-            var c = normalize(card);
-            if (c) { c.builtin = true; builtin[c.id] = c; }
-          }).catch(function () {});
-        }));
+      var privBase = base.replace(/characters\/$/, 'characters-private/');
+      var loadList = function (dir) {
+        return fetchJson(dir + 'index.json').then(function (list) {
+          var found = Array.isArray(list) ? list : [];
+          ids = ids.concat(found);
+          return Promise.all(found.map(function (id) {
+            return fetchJson(dir + id + '/character.json').then(function (card) {
+              var c = normalize(card);
+              if (c) { c.builtin = true; builtin[c.id] = c; }
+            }).catch(function () {});
+          }));
+        });
+      };
+      return loadList(base).then(function () {
+        return loadList(privBase).catch(function () {});   /* optional */
       }).then(function () {
         /* index.json order is the listing order AND the default card
            (activeId falls back to order[0]); Promise.all fills `builtin` in

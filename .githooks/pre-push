@@ -1,0 +1,18 @@
+#!/bin/sh
+# Refuse to push anything the privacy gate rejects. Enable once per clone:
+#   git config core.hooksPath .githooks
+# The check runs on an export of the commit being pushed (tracked files only),
+# so gitignored media and private cards are never part of it.
+set -e
+root=$(git rev-parse --show-toplevel)
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+git archive HEAD | tar -x -C "$tmp"
+python "$root/scripts/privacy_check.py" --quiet "$tmp" || {
+  echo "pre-push: privacy check refused the push (run: python scripts/privacy_check.py .)" >&2
+  exit 1
+}
+if [ -d "$tmp/web/assets/characters-private" ]; then
+  echo "pre-push: web/assets/characters-private is tracked - it must stay gitignored" >&2
+  exit 1
+fi
