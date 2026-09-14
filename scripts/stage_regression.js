@@ -86,6 +86,14 @@ ok(Stage.kind() === 'none' && Stage.hitPartAt(1, 1) === null && Stage.poke('x') 
   ok(r3.expression === null, 'unknown expression in map → none (no crash)');
   ok(CubismBackend.pickByPrefix(flat, ['idle-'], true) === 'idle-01', 'pickByPrefix loop filter');
   ok(CubismBackend.pickByPrefix(flat, ['idle-'], false) === null, 'pickByPrefix excludes loops when asked');
+  /* posture: a sit clip makes the model able to sit; none = stand only */
+  CubismBackend.model = { motionIndex: flat }; CubismBackend._pack = { posture: {} };
+  ok(CubismBackend.canSit() === false, 'no sit clip = stand only');
+  CubismBackend.model = { motionIndex: flat.concat([{ name: 'sit-01', loop: true }]) };
+  ok(CubismBackend.sitMotion() === 'sit-01', 'default sit prefix finds the clip');
+  CubismBackend._pack = { posture: { sit: ['sleepy-'] } };
+  ok(CubismBackend.sitMotion() === null, 'pack prefixes replace the defaults');
+  CubismBackend.model = null; CubismBackend._pack = null;
 
   /* mergeMaps: pack rules only override what they set (shared library survives) */
   const auto = { emotions: { happy: { expression: 'F02', motions: ['joy-'] }, sad: { expression: null, motions: ['sad-'] } },

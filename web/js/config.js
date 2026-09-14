@@ -111,6 +111,7 @@
       skin: 'crf_skn_002_0001',
       stage: 'stage_01_001_04',      // ライザの家
       tod: 'aft',                    // mor | aft | eve | ngt
+      place: '',                     // '' = the map scene (state.stage); else an image place id (js/places.js)
       /* Standing (crf_skn_002_0001_99) is the default posture. Only scenes
          whose midgroundPostures lists BOTH postures honour the choice — in the
          shipped pack that is 隠れ家前 / stage_01_002_01 alone; every other

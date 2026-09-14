@@ -92,12 +92,14 @@
 
       var L = Characters.langs(card);
       var langs = Prompt.langsFor(L.sub, L.dub);
-      var mem = '';
+      var mem = '', graph = '';
       try { if (global.Memory) mem = Memory.promptBlock() || ''; } catch (e) { mem = ''; }
+      var names = { user: (opts.profile && opts.profile.name) || 'the user', me: card.name || 'you' };
+      try { if (global.Graph) graph = Graph.promptBlock(charId, userText, names) || ''; } catch (e) { graph = ''; }
       var system = Prompt.system({
         card: card, mode: opts.mode, style: opts.style,
         bondLevel: Affection.level(charId), langs: langs, emotions: card.emotions,
-        memoryBlock: mem, profile: opts.profile, extra: opts.extra,
+        memoryBlock: mem, graphBlock: graph, profile: opts.profile, extra: opts.extra,
         hasAction: Prompt.hasAction(userText)
       });
       var messages = Prompt.messages(system, Engine.history(charId), userText);
@@ -134,6 +136,8 @@
         if (!reply.narration) {
           Engine._appendHistory(charId, userText, reply);
           try { if (global.Memory) Memory.ingest(userText, reply.text); } catch (e) {}
+          try { if (global.Graph && reply.facts && reply.facts.length) reply.learned = Graph.add(charId, reply.facts); } catch (e) {}
+          try { if (global.Graph && reply.facts && reply.facts.length) reply.learned = Graph.add(charId, reply.facts); } catch (e) {}
         }
         return reply;
       });

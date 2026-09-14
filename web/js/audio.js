@@ -114,7 +114,7 @@
     setPlace: function (stageId, tod, bgId) {
       Sound._stageId = stageId || Sound._stageId;
       Sound._tod = tod || Sound._tod;
-      Sound._bgId = bgId || Sound._bgId;
+      Sound._bgId = (bgId != null) ? bgId : Sound._bgId;
       if (Sound._route === 'talk' || Sound._route === 'world') Sound._applyRoute();
     },
 
@@ -213,7 +213,7 @@
       if (!files.length) return '';
       var keys = Sound._sceneKeys;
       var bg = Sound._bgId || Sound._stageId;
-      var idx = keys.length ? Math.max(0, keys.indexOf(bg)) : 0;
+      var idx = typeof bg === 'number' ? Math.max(0, bg - 1) : (keys.length ? Math.max(0, keys.indexOf(bg)) : 0);
       if (idx < 0) idx = 0;
       var band = (Sound._tod === 'ngt' || Sound._tod === 'eve') ? 'night' : 'day';
       var n = (idx % 47) + 1;

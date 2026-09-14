@@ -38,7 +38,9 @@
         var t = db.transaction(STORE, mode);
         var store = t.objectStore(STORE);
         var out = fn(store);
-        t.oncomplete = function () { resolve(out && out.result !== undefined ? out.result : out); };
+        /* a request resolves to its result (undefined for a missing key —
+           the old check leaked the IDBRequest itself, which is truthy) */
+        t.oncomplete = function () { resolve(out && typeof out === 'object' && 'result' in out ? out.result : out); };
         t.onerror = function () { reject(t.error); };
         t.onabort = function () { reject(t.error || new Error('aborted')); };
       });
@@ -95,6 +97,30 @@
       return tx('readwrite', function (s) { s.put(rec); }).then(function () {
         PackFS.release(id);
         return { id: id, name: rec.name, bytes: bytes, count: Object.keys(clean).length, files: Object.keys(clean) };
+      });
+    },
+
+    /* Add files to an existing pack under a prefix ("outfits/<id>/"). The
+       incoming set loses its own common root first, like put(). */
+    merge: function (id, files, prefix) {
+      prefix = String(prefix || '').replace(/^\/+|\/+$/g, '');
+      prefix = prefix ? prefix + '/' : '';
+      return PackFS.get(id).then(function (rec) {
+        if (!rec) throw new Error('pack not found: ' + id);
+        var rels = Object.keys(files).map(norm).filter(Boolean);
+        var root = stripCommonRoot(rels);
+        Object.keys(files).forEach(function (k) {
+          var rel = norm(k);
+          if (!rel) return;
+          if (root && rel.indexOf(root) === 0) rel = rel.slice(root.length);
+          if (!rel || /\/$/.test(rel)) return;
+          rec.files[prefix + rel] = files[k];
+          rec.bytes = (rec.bytes || 0) + (files[k].size || 0);
+        });
+        return tx('readwrite', function (s) { s.put(rec); }).then(function () {
+          PackFS.release(id);
+          return { id: id, name: rec.name, bytes: rec.bytes, count: Object.keys(rec.files).length, files: Object.keys(rec.files) };
+        });
       });
     },
 

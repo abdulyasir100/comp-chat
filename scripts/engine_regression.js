@@ -35,12 +35,114 @@ function load(f) {
   vm.runInContext(fs.readFileSync(path.join(WEB, f), 'utf8'), sandbox, { filename: f });
 }
 ['js/util.js', 'js/config.js', 'js/i18n.js', 'js/api.js', 'js/memory.js',
- 'engine/store.js', 'engine/affection.js', 'engine/guard.js', 'engine/reply.js',
+ 'engine/store.js', 'engine/affection.js', 'engine/graph.js', 'engine/guard.js', 'engine/reply.js',
  'engine/prompt.js', 'engine/characters.js', 'engine/providers/registry.js',
  'engine/providers/llm-openai.js', 'engine/providers/tts-omnivoice.js', 'engine/index.js'
 ].forEach(load);
 
-const { Store, Affection, Guard, Reply, Prompt, Characters, Providers, Engine, Memory, Config, TtsOmnivoice } = sandbox;
+load('engine/outfits.js');
+load('engine/gifts.js');
+load('js/places.js');
+load('js/gather.js');
+load('js/mapview.js');
+{
+  const { Graph, Reply, Prompt } = sandbox;
+  console.log('Graph');
+  Graph.clear('g1');
+  eq(Graph.add('g1', [['user', 'likes', 'ramen'], ['I', 'lives in', 'Tokyo'], ['user', 'likes', 'ramen'], ['x', 'is', ''], ['me', 'is', 'me']]), 2, 'add: dedupes, drops empty and self-loops, "I" = user');
+  eq(Graph.count('g1'), 2, 'two edges stored');
+  eq(Graph.add('g1', [['user', 'lives in', 'Osaka']]), 1, 'single-valued relation: new object accepted');
+  const g = Graph.list('g1');
+  ok(g.edges.filter(e => e.o === 'tokyo')[0].ended && !g.edges.filter(e => e.o === 'osaka')[0].ended, 'old value closed, new one open');
+  const rc = Graph.recall('g1', 'do you remember what I said about ramen?', 12);
+  ok(rc.some(e => e.o === 'ramen'), 'recall by mention');
+  ok(/ramen/.test(Graph.promptBlock('g1', 'ramen', { user: 'Dio', me: 'Sui' })) && /Dio likes ramen/.test(Graph.promptBlock('g1', 'ramen', { user: 'Dio', me: 'Sui' })), 'prompt lines name the user');
+  ok(/no longer true/.test(Graph.line(g.edges[1], g, {})), 'ended edge reads as history');
+  const r = Reply.parse('{"line":{"en":"ok"},"emotion":"neutral","verdict":"liked","remember":[["user","has","a cat named Momo"],["bad"]]}', { langs: ['en'] });
+  eq(r.facts, [['user', 'has', 'a cat named Momo']], 'reply carries cleaned facts');
+  ok(/"remember": \[\]/.test(Prompt.system({ card: { name: 'T' }, langs: ['en'] })), 'output spec asks for remember');
+  ok(/Things you know/.test(Prompt.system({ card: { name: 'T' }, langs: ['en'], graphBlock: '## Things you know\n- x' })), 'graph block injected');
+  ok(Graph.removeEdge('g1', 0) && Graph.count('g1') === 2, 'remove edge');
+  Graph.clear('g1');
+}
+{
+  const { MapView } = sandbox;
+  console.log('MapView');
+  MapView.setPins({ field_01_002: [83, 66] });
+  eq(MapView.fieldPos('field_01_002'), [83, 66], 'authored field position');
+  const p = MapView.fieldPos('field_99_999');
+  ok(p[0] >= 15 && p[0] <= 85 && p[1] >= 15 && p[1] <= 85 && MapView.fieldPos('field_99_999')[0] === p[0], 'unknown field: stable spot inside the picture');
+  eq(MapView.stagePos('field_01_002', 0, 4), [83, 66], 'first stage sits on the field');
+  const s2 = MapView.stagePos('field_01_002', 2, 4);
+  ok(Math.abs(s2[0] - 83) < 8 && Math.abs(s2[1] - 66) < 10 && (s2[0] !== 83 || s2[1] !== 66), 'other stages fan around it');
+}
+{
+  const { Gather, Gifts } = sandbox;
+  console.log('Gather');
+  Gifts.setCatalog([{ id: 'tea', name: 'Tea', tier: 'common', price: 10 }, { id: 'ring', name: 'Ring', tier: 'epic', price: 200 }]);
+  Gather.setLoot({ default: { coinsChance: 0.5, coins: [5, 5], gifts: [{ id: 'tea', w: 3 }, { id: 'ring', w: 1 }, { id: 'missing', w: 9 }] } });
+  eq(Gather.check({ place: 'my-room', stage: 'stage_02_001_01' }).reason, 'place', 'no gathering on an image background');
+  eq(Gather.check({ place: '', stage: Gather.HOME_STAGE }).reason, 'home', 'never at home');
+  ok(Gather.check({ place: '', stage: 'stage_02_001_01' }).ok, 'a map stage is gatherable');
+  eq(Gather.roll('stage_02_001_01', 0.1).kind, 'coins', 'low roll = coins');
+  const g = Gather.roll('stage_02_001_01', 0.9);
+  ok(g.kind === 'gift' && ['tea', 'ring'].indexOf(g.gift.id) !== -1, 'high roll = a catalogue gift (unknown ids skipped)');
+  const find = Gather.gather({ place: '', stage: 'stage_02_001_01' });
+  ok(find && /^\*we look around/.test(find.text), 'gather returns a narration turn');
+  eq(Gather.check({ place: '', stage: 'stage_02_001_01' }).reason, 'cooldown', 'then the stage cools down');
+}
+{
+  const { Places } = sandbox;
+  console.log('Places');
+  eq(Places.cycleTod('mor', false), 'aft', 'cycle mor -> aft');
+  eq(Places.cycleTod('ngt', false), 'auto', 'cycle ngt -> auto');
+  eq(Places.cycleTod('eve', true), 'mor', 'auto -> mor (whatever the clock says)');
+  eq(Places.tintClass('ngt'), 'tod-ngt', 'tint class');
+  eq(Places.tintClass('bogus'), 'tod-aft', 'unknown band = no tint');
+  eq(Places.imagePlaces().map(p => p.id), ['home'], 'home is always there');
+  eq(Places.hasBandImage('home', 'ngt'), false, 'home has no per-band picture');
+}
+{
+  const { Gifts } = sandbox;
+  console.log('Gifts');
+  Gifts.setCatalog([{ id: 'cake', name: 'Cake', tags: ['sweet'], tier: 'uncommon', price: 25, icon: 'cake.svg' },
+                    { id: 'ring', name: 'Ring', tags: ['promise'], tier: 'epic', price: 200 }]);
+  eq(Gifts.get('cake').icon, 'assets/gifts/icons/cake.svg', 'built-in icon path');
+  const mine = Gifts.addCustom({ name: 'Cake', tags: 'home made, sweet', tier: 'bogus', price: '5' });
+  eq(mine.id, 'my-cake', 'custom id prefixed, no clash with built-in');
+  eq(mine.tags, ['home', 'made', 'sweet'], 'tags split on commas and spaces');
+  eq(mine.tier, 'common', 'unknown tier falls back to common');
+  eq(Gifts.catalog().length, 3, 'catalog = built-in + custom');
+  eq(Gifts.grant('cake', 2), 2, 'grant adds to the bag');
+  eq(Gifts.grant('cake', -1), 1, 'grant can consume');
+  eq(Gifts.bagItems().map(i => i.gift.id + 'x' + i.n), ['cakex1'], 'bag items');
+  eq(Gifts.bonusFor(Gifts.get('ring'), 'liked'), 8, 'epic bonus');
+  eq(Gifts.bonusFor(Gifts.get('ring'), 'annoyed'), 0, 'no bonus when she hated it');
+  ok(/GIFT: they just handed you "Ring" \(epic; promise\)/.test(Gifts.promptBlock(Gifts.get('ring'))), 'prompt block names tier + tags');
+  eq(Gifts.turnText(Gifts.get('cake')), '*hands you Cake*', 'turn text is narration');
+  eq(Gifts.coinsForTurn({ verdict: 'loved' }), 10, 'coins: base + loved bonus');
+  Gifts.removeCustom('my-cake');
+  eq(Gifts.catalog().length, 2, 'custom removed');
+}
+const { Store, Affection, Guard, Reply, Prompt, Characters, Providers, Engine, Memory, Config, TtsOmnivoice, Outfits } = sandbox;
+
+/* -------------------------------------------------------------- Outfits */
+console.log('Outfits');
+{
+  const chara = { defaultCostume: 'nrml-0004-00', costumes: [
+    { id: 'cmmn-0000-00', name: 'Casual', model: 'costumes/cmmn-0000-00/00018-cmmn-0000-00.model3.json' },
+    { id: 'nrml-0004-00', name: 'Idol', model: 'costumes/nrml-0004-00/00018-nrml-0004-00.model3.json' } ] };
+  const models = ['costumes/nrml-0004-00/00018-nrml-0004-00.model3.json', 'costumes/cmmn-0000-00/00018-cmmn-0000-00.model3.json', 'extra/Haru.model3.json'];
+  const list = Outfits.fromModels(models, chara);
+  eq(list.map(o => o.id), ['cmmn-0000-00', 'nrml-0004-00', 'extra'], 'ids: export ids, folder for unknown');
+  eq(list.map(o => o.name), ['Casual', 'Idol', 'extra'], 'names from live2d-character.json');
+  eq(Outfits.defaultModel(list, chara, null), chara.costumes[1].model, 'default = export defaultCostume');
+  eq(Outfits.defaultModel(list, null, 'extra/Haru.model3.json'), 'extra/Haru.model3.json', 'default = preferred when no export');
+  eq(Outfits.defaultModel(list, null, null), list[0].model, 'default = first otherwise');
+  eq(Outfits.fromModels(['a/x.model3.json', 'b/x.model3.json'], null).map(o => o.id), ['a', 'b'], 'folder ids');
+  eq(Outfits.fromModels(['x.model3.json', 'y/x.model3.json'], null).map(o => o.id), ['x', 'y'], 'root model uses its own name');
+}
+
 
 /* ---------------------------------------------------------------- Store */
 console.log('Store');

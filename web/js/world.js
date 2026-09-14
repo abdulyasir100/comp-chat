@@ -404,10 +404,9 @@
     /* --------------------------------------------------------- pin map */
     /* Source flow: the world beyond クーケン島 (area_01) opens when the
        ship quest finishes (`sailed` in game.js — entry_map_move.dart). */
-    locked: function (areaId) {
-      if (!window.Game || !Game.s) return false;
-      return !Game.s.sailed && areaId !== 'area_01';
-    },
+    /* companion-chat: the map is just a map — the ship quest that used to
+       gate the other islands is gone, so nothing is locked. */
+    locked: function () { return false; },
 
     _pinGrid: function (root, items, currentId, opts) {
       opts = opts || {};

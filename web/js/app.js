@@ -102,6 +102,10 @@
       return Stage.loadPack(card).then(function () {
         App._applyPackBackground(card);
         App.renderMemory();
+        /* the new rig may not be able to sit: fall back to standing */
+        if (!App._postureSupport()) Config.set('state.posture', 'posture_standing');
+        else if (Stage.kind() === 'cubism') CubismBackend.setPosture(Config.section('state').posture === 'posture_sitting');
+        App.updateHud();
         return card;
       });
     },
@@ -111,6 +115,7 @@
       if (!card) return;
       var name = I18n.characterName();
       if (window.Bond) Bond.refresh();
+      App._applyPlace();
       ['log-name', 'drawer-name', 'title-name'].forEach(function (id) {
         var el = document.getElementById(id);
         if (el) el.textContent = name;
@@ -233,6 +238,7 @@
       if (window.Bond) Bond.mount();
       Game.on(function () { App.refreshHud(); App._syncOpenViews(); });
 
+      if (window.Gifts) Gifts.load();
       Promise.all([Config.hydrate(), World.init(), VoiceBank.load(), Sound.init(), Engine.init()]).then(function () {
         Sound.setCatalog(Object.keys(World.scenes || {}));
         var st = Config.section('state');
@@ -247,6 +253,7 @@
           App.setCharacter(Characters.activeId());
         });
         setInterval(App._tickTime, 30000);
+        setInterval(function () { App._syncGatherButton(); }, 30000);
         document.addEventListener('visibilitychange', function () {
           if (!document.hidden) App._tickTime();
         });
@@ -336,8 +343,7 @@
         /* Sit/stand is a choice that only exists on stages whose scene lists
            both postures. Walking away resets it to the source default
            (standing), so the next visit to that stage starts on her feet. */
-        if (window.Avatar && !Avatar.supportsBothPostures() &&
-            Config.section('state').posture !== 'posture_standing') {
+        if (!App._postureSupport() && Config.section('state').posture !== 'posture_standing') {
           Config.set('state.posture', 'posture_standing');
         }
         App.updateHud();   /* posture chip only shows on dual-posture stages */
@@ -468,12 +474,17 @@
       });
       App._el('sm-full').onclick = sideClose(function () { App._toggleFullscreen(); });
       App._el('sm-chara').onclick = sideClose(function () { App._toggleChara(); });
+      App._el('sm-skin').onclick = sideClose(function () { App.showView('skin'); });
+      App._el('sm-gifts').onclick = sideClose(function () { App.showView('gifts'); });
+      App._el('sm-places').onclick = sideClose(function () { App.showView('places'); });
+      App._bindPlaces();
+      App._bindGifts();
 
       /* Posture button — visible only on stages whose scene lists both sitting
          and standing midgroundPostures (e.g. stage_01_002_01). */
       var postureBtn = App._el('btn-posture');
       if (postureBtn) postureBtn.onclick = function () {
-        App.setPosture(Avatar.postureKey() === 'posture_standing'
+        App.setPosture(App._postureKey() === 'posture_standing'
           ? 'posture_sitting' : 'posture_standing');
       };
       var skinBtn = document.getElementById('btn-chara-skin');
@@ -532,7 +543,7 @@
           Config.set('state.gameClockAt', Date.now());
         }
       };
-      App._el('world-area').onchange = function (e) {
+      App._el('__world-area-legacy').onchange = function (e) {
         World.jumpArea(e.target.value, Config.section('state').stage, App.gotoStage);
       };
       App._el('btn-quest-new').onclick = function () {
@@ -592,6 +603,8 @@
       }
       if (name === 'memory') App.renderMemory();
       if (name === 'skin') { Welcome.mark('skin'); App.renderSkins(); }
+      if (name === 'gifts') App.renderGifts();
+      if (name === 'places') App.renderPlaces();
       if (name === 'welcome') Welcome.render(App._el('welcome-body'));
       if (name === 'alarm') Welcome.mark('alarm');
       if (name === 'quest') Quests.render(App._el('quest-list'), {});
@@ -611,9 +624,30 @@
        skeleton swap (the skin_change SE + veil are the source's own costume
        feedback), and let Stage.resize() re-solve the camera for the new
        posture. Only meaningful on the dual-posture stage. */
+    /* Can she sit here? Spine: the dual-posture stage. Live2D: the pack has
+       a sitting clip. Otherwise standing is the only posture (no button). */
+    _postureSupport: function () {
+      if (window.Stage && Stage.kind && Stage.kind() === 'cubism') return !!(window.CubismBackend && CubismBackend.canSit());
+      return !!(window.Avatar && Avatar.supportsBothPostures && Avatar.supportsBothPostures());
+    },
+    _postureKey: function () {
+      if (!App._postureSupport()) return 'posture_standing';
+      if (window.Stage && Stage.kind && Stage.kind() === 'cubism') {
+        var want = Config.section('state').posture;
+        return want === 'posture_sitting' ? want : 'posture_standing';
+      }
+      return Avatar.postureKey();
+    },
+
     setPosture: function (posture) {
       if (posture !== 'posture_standing' && posture !== 'posture_sitting') return;
+      if (!App._postureSupport()) posture = 'posture_standing';
       Config.set('state.posture', posture);
+      if (window.Stage && Stage.kind && Stage.kind() === 'cubism') {
+        CubismBackend.setPosture(posture === 'posture_sitting');
+        App.updateHud();
+        return;
+      }
       var veil = document.getElementById('skin-veil');
       if (veil) veil.classList.add('veil-on');
       if (window.Sound) Sound.se('skin_change');
@@ -635,16 +669,13 @@
       document.getElementById('hud-tod').textContent = World.todLabel(st.tod);
       var postureBtn = App._el('btn-posture');
       if (postureBtn) {
-        var both = window.Avatar && Avatar.supportsBothPostures && Avatar.supportsBothPostures();
+        var both = App._postureSupport();
         postureBtn.classList.toggle('hidden', !both);
-        /* ACTION semantics, not state: the chip is a button, so it names what
-           the tap will do. Labelling it with the current posture (standing →
-           「立つ」) read as "pressing this makes her stand" while she was
-           already standing — the reported 「按站立却变坐」 confusion. */
-        postureBtn.textContent = both
-          ? (Avatar.postureKey() === 'posture_standing'
-              ? I18n.t('posture.sit') : I18n.t('posture.stand'))
-          : '';
+        /* ACTION semantics: the icon shows what the tap will do (a chair
+           while she stands, a standing figure while she sits) */
+        var standing = App._postureKey() === 'posture_standing';
+        postureBtn.classList.toggle('will-sit', standing);
+        postureBtn.title = both ? (standing ? I18n.t('posture.sit') : I18n.t('posture.stand')) : '';
       }
       var todBtn = App._el('btn-tod-label');
       if (todBtn) todBtn.textContent = World.todLabel(st.tod);
@@ -714,6 +745,7 @@
       App._loadSceneFor(s.stage, tod);
       Sound.setPlace(s.stage, tod, World.backgroundFor(s.stage));
       App.updateHud();
+      App._applyPlace();
     },
 
     /* Time passage. 'real' mirrors the official AppServerClock (the scene
@@ -1281,7 +1313,18 @@
 
       /* companion-chat: the embedded engine owns prompt, history, memory and
          affection. The app only renders what comes back. */
-      Engine.chat(text, { mode: st.mode, style: st.style, profile: Config.section('profile') })
+      App._turn(text, Engine.chat(text, App.chatOpts()));
+    },
+
+    chatOpts: function () {
+      var st = Config.section('state');
+      return { mode: st.mode, style: st.style, profile: Config.section('profile'), extra: App._sceneLine() };
+    },
+
+    /* One conversation turn, whatever started it (typed text, a gift): render
+       the reply, feed bond/coins/memory, or show the retry bar. */
+    _turn: function (text, replyP) {
+      return replyP
         .then(function (reply) {
           App.speaking = false;
           document.getElementById('btn-send').disabled = false;
@@ -1297,12 +1340,15 @@
           /* Omit = keep. A missed field must not snap the face back to neutral. */
           if (reply.emotion) Stage.setEmotion(reply.emotion, null);
           if (window.Bond) Bond.onReply(reply);
+          if (reply.learned) App.toast(I18n.tf('graph.learned', 'She noted {n} thing(s) about you', { n: reply.learned }));
+          if (window.Gifts && window.Game) Game.addMoney(Gifts.coinsForTurn(reply));
           App.typeBubble(reply.text, function () {
             App.speakThen(reply.dubText || reply.text, reply.emotion);
           });
 
           if (!(reply.state && reply.state.quest)) Quests.progressEvent('talk');
           Quests.render(App._el('quest-list'), {});
+          return reply;
         })
         .catch(function (e) {
           App.speaking = false;
@@ -1718,6 +1764,14 @@
       var root = document.getElementById('memory-list');
       if (!root) return;
       root.innerHTML = '';
+      var gh = document.getElementById('memory-graph');
+      if (gh && window.GraphView && window.Characters) {
+        var card = Characters.active();
+        var view = document.getElementById('view-memory');
+        if (view && view.classList.contains('active')) {
+          GraphView.render(gh, Characters.activeId(), { user: Config.section('profile').name || I18n.tc('graph.you', 'you'), me: card ? (card.nickname || card.name) : 'her' }, function () { App.renderMemory(); });
+        } else { GraphView.stop(); gh.innerHTML = ''; }
+      }
       var T = function (k) { return I18n.t(k); };
       if (window.Memory) {
         var bag = Memory.list();
@@ -1845,9 +1899,503 @@
       });
     },
 
+    /* ------------------------------------------------------------ gather */
+    _syncGatherButton: function () {
+      var b = document.getElementById('btn-gather');
+      if (!b || !window.Gather) return;
+      var c = Gather.check(Config.section('state'));
+      var show = c.ok || c.reason === 'cooldown';
+      b.classList.toggle('hidden', !show);
+      b.classList.toggle('cool', c.reason === 'cooldown');
+      var w = document.getElementById('gather-wait');
+      if (w) w.textContent = c.reason === 'cooldown' ? Gather.waitLabel(c.wait) : '';
+      b.title = c.ok ? I18n.tc('gather.title', 'Look around') : (c.reason === 'cooldown' ? I18n.tf('gather.wait', 'Nothing new here for {t}', { t: Gather.waitLabel(c.wait) }) : '');
+    },
+
+    _gather: function () {
+      if (App.speaking || !window.Gather) return;
+      var c = Gather.check(Config.section('state'));
+      if (!c.ok) {
+        if (c.reason === 'cooldown') App.toast(I18n.tf('gather.wait', 'Nothing new here for {t}', { t: Gather.waitLabel(c.wait) }));
+        return;
+      }
+      if (!Config.section('llm').apiKey) { App.toast(I18n.t('toast.needKey'), true); App.showView('settings'); return; }
+      var find = Gather.gather(Config.section('state'));
+      App._syncGatherButton();
+      if (!find) return;
+      /* the find pops up over the stage, then she reacts to it */
+      App._findPop(find);
+      App.speaking = true;
+      document.getElementById('btn-send').disabled = true;
+      App.showTyping();
+      App._lastText = find.text;
+      var opts = App.chatOpts();
+      opts.extra = [opts.extra, find.extra].filter(Boolean).join('\n');
+      App._turn(find.text, Engine.chat(find.text, opts));
+    },
+
+    _findPop: function (find) {
+      var host = document.getElementById('view-talk');
+      if (!host) return;
+      var el = document.createElement('div');
+      el.className = 'find-pop';
+      var img = document.createElement('img'); img.alt = '';
+      img.src = find.kind === 'gift' ? (find.gift.icon || 'assets/icons/present.svg') : 'assets/icons/hud_coin.svg';
+      var t = document.createElement('b');
+      t.textContent = find.kind === 'gift' ? I18n.tf('gather.found', 'Found: {name}', { name: find.gift.name })
+                                            : I18n.tf('gather.foundCoins', 'Found {n} coins', { n: find.n });
+      el.appendChild(img); el.appendChild(t);
+      host.appendChild(el);
+      if (window.Sound) Sound.se('quest_clear');
+      setTimeout(function () { el.classList.add('out'); }, 2200);
+      setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 2800);
+    },
+
+    /* ------------------------------------------------------------ places */
+    TOD_ICONS: {"mor": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\"><path d=\"M4 17h16M6 13a6 6 0 0 1 12 0M12 4v2M5 7l1.5 1.5M19 7l-1.5 1.5\"/></svg>", "aft": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\"><circle cx=\"12\" cy=\"12\" r=\"4.5\"/><path d=\"M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4\"/></svg>", "eve": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\"><path d=\"M3 18h18M6 15a6 6 0 0 1 12 0M12 6v2M4 10l1.5 1M20 10l-1.5 1\"/><path d=\"M2 21h20\" opacity=\".5\"/></svg>", "ngt": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\"><path d=\"M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z\"/><path d=\"M17 4l.6 1.4L19 6l-1.4.6L17 8l-.6-1.4L15 6l1.4-.6z\" fill=\"currentColor\" stroke=\"none\"/></svg>", "auto": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\"><circle cx=\"12\" cy=\"12\" r=\"8\"/><path d=\"M12 8v4l2.5 2.5\"/></svg>"},
+
+    /* the backdrop for the active character: a Spine character draws its own
+       scenes (state.stage), everyone else shows the chosen image place */
+    _applyPlace: function () {
+      var stage = document.getElementById('stage');
+      if (!stage || !window.Places) return;
+      var st = Config.section('state');
+      var card = window.Characters ? Characters.active() : null;
+      var spine = !!(card && card.pack && card.pack.renderer === 'spine');
+      Places.TODS.forEach(function (b) { stage.classList.remove('tod-' + b); });
+      stage.classList.remove('tinted', 'place-home');
+      var hasScenes = !!(window.World && World.scenes && Object.keys(World.scenes).length);
+      var id = st.place || '';
+      if (id && !Places.get(id)) { id = ''; Config.set('state.place', id); }
+      if (!id && !hasScenes) id = 'home';          /* no map media: the CSS sky */
+      if (!id) {
+        /* map scene (Spine, drawn on #scene-canvas behind any character) */
+        stage.style.backgroundImage = '';
+        stage.classList.remove('has-bg');
+        Sound.setPlace(st.stage, st.tod, World.backgroundFor(st.stage));
+        App._syncTodButton();
+        App._syncGatherButton();
+        return;
+      }
+      if (spine) { App._applyPackBackground(card); return; }
+      var p = Places.get(id);
+      Places.imageFor(id, st.tod).then(function (url) {
+        if (!url && !(p && p.css)) { App._applyPackBackground(card); return; }
+        stage.style.backgroundImage = url ? 'url("' + url + '")' : '';
+        if (p && p.css) stage.classList.add(p.css);
+        stage.classList.add('has-bg');
+        if (!Places.hasBandImage(id, st.tod)) { stage.classList.add('tinted', Places.tintClass(st.tod)); }
+      });
+      Sound.setPlace(id, st.tod, p && p.ambient ? p.ambient : null);
+      App._syncTodButton();
+      App._syncGatherButton();
+    },
+
+    /* a map pin: back to the scene backdrop, then the usual stage change */
+    _pickStage: function (stageId) {
+      Config.set('state.place', '');
+      App.gotoStage(stageId);
+      App._applyPlace();
+    },
+
+    _setPlace: function (id) {
+      Config.set('state.place', id);
+      var curtain = document.getElementById('scene-curtain');
+      if (curtain) curtain.classList.add('on');
+      setTimeout(function () { App._applyPlace(); if (curtain) setTimeout(function () { curtain.classList.remove('on'); }, 280); }, 160);
+      var p = Places.get(id);
+      if (p) App.toast(I18n.tf('talk.mapMove', 'Arrived: {name}', { name: p.name }));
+      App.renderPlaces();
+    },
+
+    /* one line of scene facts for the model (English; the old Japanese RPG
+       block is not used by the engine) */
+    _sceneLine: function () {
+      var st = Config.section('state');
+      var card = window.Characters ? Characters.active() : null;
+      var name = null;
+      if (!st.place && window.World && World.find) {
+        var here = World.find(st.stage);
+        if (here) name = World.placeLabel(here.stageId, here.stage);
+      } else if (window.Places) {
+        var p = Places.get(st.place || 'home');
+        if (p) name = p.name;
+      }
+      var band = { mor: 'morning', aft: 'afternoon', eve: 'evening', ngt: 'night' }[st.tod] || 'afternoon';
+      return 'Scene: ' + (name ? 'the two of you are at "' + name + '". ' : '') + 'It is ' + band + '.';
+    },
+
+    _todAuto: function () { return (Config.section('app').timeMode || 'real') !== 'manual'; },
+    _syncTodButton: function () {
+      var b = document.getElementById('btn-tod-cycle');
+      if (!b) return;
+      var st = Config.section('state');
+      var key = App._todAuto() ? 'auto' : st.tod;
+      b.innerHTML = App.TOD_ICONS[key] || App.TOD_ICONS.auto;
+      b.classList.toggle('auto', key === 'auto');
+      b.title = key === 'auto' ? I18n.tc('tod.auto', 'Auto') + ' \u00b7 ' + World.todLabel(st.tod) : World.todLabel(st.tod);
+      document.querySelectorAll('#tod-seg .seg').forEach(function (s) { s.classList.toggle('active', s.getAttribute('data-tod') === key); });
+    },
+    _pickTod: function (key) {
+      if (key === 'auto') {
+        Config.set('app.timeMode', 'real');
+        Config.set('state.todManualUntil', 0);
+        App._tickTime();
+        App._syncTodButton();
+        return;
+      }
+      Config.set('app.timeMode', 'manual');
+      App._setTod(key);
+      App._syncTodButton();
+    },
+
+    _bindPlaces: function () {
+      if (!window.Places) return;
+      var g = document.getElementById('btn-gather');
+      if (g) g.onclick = function () { App._gather(); };
+      if (window.Gather) Gather.load();
+      var add = document.getElementById('btn-place-add');
+      if (add) add.onclick = function () { App._addPlaceDialog(); };
+    },
+
+    renderPlaces: function () {
+      var view = document.getElementById('view-places'), root = document.getElementById('place-grid');
+      if (!view || !root || !view.classList.contains('active') || !window.Places) return;
+      var tc = function (k, f) { return I18n.tc(k, f); };
+      App._syncTodButton();
+      root.innerHTML = '';
+      var st = Config.section('state');
+      var hasScenes = !!(window.World && World.scenes && Object.keys(World.scenes).length);
+      var fields = document.getElementById('world-fields');
+      if (fields) {
+        fields.classList.toggle('hidden', !hasScenes);
+        if (hasScenes && window.MapView) MapView.render(fields, st.stage, App._pickStage);
+      }
+      var tile = function (p, active, thumbP, onClick) {
+        var el = document.createElement('div');
+        el.className = 'place-card' + (active ? ' active' : '');
+        var pic = document.createElement('div'); pic.className = 'place-pic';
+        el.appendChild(pic);
+        var cap = document.createElement('div'); cap.className = 'place-cap';
+        var nm = document.createElement('b'); nm.textContent = p.name; cap.appendChild(nm);
+        var sub = document.createElement('span'); sub.textContent = active ? tc('places.here', 'You are here') : tc('places.go', 'Tap to go'); cap.appendChild(sub);
+        el.appendChild(cap);
+        thumbP.then(function (url) { if (url) pic.style.backgroundImage = 'url("' + url + '")'; else pic.classList.add(p.css || 'empty'); });
+        el.onclick = onClick;
+        return el;
+      };
+      Places.imagePlaces().forEach(function (p) {
+        if (p.id === 'home' && hasScenes) return;      /* the map is home when the media is there */
+        var active = (st.place || (hasScenes ? '' : 'home')) === p.id;
+        var el = tile(p, active, Places.thumbFor(p.id), function () { if (!active) App._setPlace(p.id); });
+        if (p.custom) {
+          var x = document.createElement('button'); x.type = 'button'; x.className = 'gift-x'; x.textContent = '\u2715';
+          x.onclick = function (e) {
+            e.stopPropagation();
+            Dialog.confirm(tc('places.removeConfirm', 'Remove this place?'), { danger: true }).then(function (ok) {
+              if (!ok) return;
+              Places.remove(p.id).then(function () { if (active) Config.set('state.place', ''); App._applyPlace(); App.renderPlaces(); });
+            });
+          };
+          el.appendChild(x);
+        }
+        root.appendChild(el);
+      });
+      var add = document.createElement('div');
+      add.className = 'place-card add';
+      add.innerHTML = '<div class="place-pic empty"><b>+</b></div><div class="place-cap"><b></b></div>';
+      add.querySelector('.place-cap b').textContent = tc('places.add', '+ Add place');
+      add.onclick = function () { App._addPlaceDialog(); };
+      root.appendChild(add);
+    },
+
+    _addPlaceDialog: function () {
+      var tc = function (k, f) { return I18n.tc(k, f); };
+      var files = {};
+      var slotRow = function (body, key, label) {
+        var row = document.createElement('div'); row.className = 'place-slot';
+        var img = document.createElement('img'); img.alt = '';
+        var inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.style.display = 'none';
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'btn'; b.textContent = label;
+        b.onclick = function () { inp.click(); };
+        inp.onchange = function () {
+          var f = inp.files[0]; inp.value = '';
+          if (!f) return;
+          files[key] = f;
+          img.src = URL.createObjectURL(f); img.classList.add('on');
+        };
+        row.appendChild(img); row.appendChild(b); row.appendChild(inp);
+        body.appendChild(row);
+      };
+      App.openModal({
+        title: tc('places.add', '+ Add place'),
+        build: function (body) {
+          body.appendChild(App._fieldEl(tc('places.name', 'Name'), '<input id="place-name" type="text" maxlength="40">'));
+          var hint = document.createElement('p'); hint.className = 'hint'; hint.textContent = tc('places.hint', 'One picture is enough; it gets tinted for evening and night. Add pictures per time of day if you have them.');
+          body.appendChild(hint);
+          slotRow(body, 'any', tc('places.picture', 'Picture'));
+          var det = document.createElement('details'); var sum = document.createElement('summary'); sum.textContent = tc('places.perTod', 'Per time of day'); det.appendChild(sum);
+          Places.TODS.forEach(function (k) { slotRow(det, k, World.todLabel(k)); });
+          body.appendChild(det);
+          if (window.Sound && Sound.ambientFiles && Sound.ambientFiles.length) {
+            var opts = '<option value="0">' + tc('places.noAmbient', 'No ambience') + '</option>';
+            for (var i = 1; i <= 47; i++) opts += '<option value="' + i + '">' + tc('places.ambient', 'Ambience') + ' ' + i + '</option>';
+            body.appendChild(App._fieldEl(tc('places.ambientLabel', 'Ambient sound'), '<select id="place-ambient">' + opts + '</select>'));
+          }
+        },
+        onOk: function (body) {
+          var name = (body.querySelector('#place-name').value || '').trim();
+          if (!name) { App.toast(tc('places.needName', 'Give it a name'), true); return false; }
+          if (!Object.keys(files).length) { App.toast(tc('places.needImage', 'Pick a picture'), true); return false; }
+          var amb = body.querySelector('#place-ambient'); amb = amb ? amb.value | 0 : 0;
+          App.toast('\u2026');
+          Places.add({ name: name, files: files, ambient: amb }).then(function (p) {
+            App._setPlace(p.id);
+          }).catch(function (e) { App.toast('failed: ' + (e && e.message ? e.message : e), true); });
+        }
+      });
+    },
+
+    /* ------------------------------------------------------------- gifts */
+    _giftTab: 'bag',
+    _bindGifts: function () {
+      var tabs = document.getElementById('gift-tabs');
+      if (tabs) tabs.onclick = function (e) {
+        var b = e.target.closest ? e.target.closest('.gift-tab') : null;
+        if (!b) return;
+        App._giftTab = b.getAttribute('data-tab') || 'bag';
+        App.renderGifts();
+      };
+      var add = document.getElementById('btn-gift-add');
+      if (add) add.onclick = function () { App._addGiftDialog(); };
+    },
+
+    renderGifts: function () {
+      var view = document.getElementById('view-gifts'), root = document.getElementById('gift-grid');
+      if (!view || !root || !view.classList.contains('active') || !window.Gifts) return;
+      var tc = function (k, f) { return I18n.tc(k, f); };
+      var coins = document.getElementById('gifts-coins-n');
+      if (coins) coins.textContent = Game.cheat() ? '\u221e' : String(Game.s.money);
+      document.querySelectorAll('#gift-tabs .gift-tab').forEach(function (b) {
+        b.classList.toggle('active', b.getAttribute('data-tab') === App._giftTab);
+      });
+      root.innerHTML = '';
+      root.className = 'tab-' + App._giftTab;
+      var tile = function (g, cap, onClick, extra) {
+        var el = document.createElement('div');
+        el.className = 'gift-card tier-' + g.tier + (extra || '');
+        var pic = document.createElement('div'); pic.className = 'gift-pic';
+        var img = document.createElement('img'); img.alt = '';
+        img.src = g.icon || 'assets/icons/present.svg';
+        pic.appendChild(img);
+        el.appendChild(pic);
+        var nm = document.createElement('b'); nm.textContent = g.name; el.appendChild(nm);
+        var c = document.createElement('span'); c.className = 'gift-cap'; c.innerHTML = cap; el.appendChild(c);
+        var t = document.createElement('i'); t.className = 'gift-tier'; t.textContent = tc('gifts.tier.' + g.tier, g.tier); el.appendChild(t);
+        if (onClick) el.onclick = onClick;
+        return el;
+      };
+      Gifts.load().then(function () {
+        if (App._giftTab === 'shop') {
+          Gifts.catalog().forEach(function (g) {
+            var can = Game.canPay(g.price);
+            var el = tile(g, '<img class="coin" src="assets/icons/hud_coin.svg" alt="">' + g.price + (Gifts.count(g.id) ? ' \u00b7 \u00d7' + Gifts.count(g.id) : ''), function () {
+              var r = Gifts.buy(g.id);
+              if (!r.ok) { App.toast(r.reason === 'coins' ? tc('gifts.noCoins', 'Not enough coins') : r.reason, true); return; }
+              if (window.Sound) Sound.se('quest_clear');
+              App.toast(tc('gifts.bought', 'Added to the bag: ') + g.name);
+              App.renderGifts();
+            }, can ? '' : ' poor');
+            if (g.custom) {
+              var x = document.createElement('button'); x.type = 'button'; x.className = 'gift-x'; x.textContent = '\u2715';
+              x.title = tc('gifts.remove', 'Remove');
+              x.onclick = function (e) {
+                e.stopPropagation();
+                Dialog.confirm(tc('gifts.removeConfirm', 'Remove this gift?'), { danger: true }).then(function (ok) { if (ok) { Gifts.removeCustom(g.id); App.renderGifts(); } });
+              };
+              el.appendChild(x);
+            }
+            root.appendChild(el);
+          });
+        } else if (App._giftTab === 'log') {
+          var log = Gifts.history(Characters.activeId());
+          if (!log.length) { var e0 = document.createElement('p'); e0.className = 'gift-empty'; e0.textContent = tc('gifts.logEmpty', 'Nothing given yet.'); root.appendChild(e0); }
+          log.forEach(function (row) {
+            var g = Gifts.get(row.id) || { id: row.id, name: row.name, tier: row.tier, tags: [], icon: null };
+            var v = String(row.verdict || 'neutral');
+            var el = tile(g, '<em class="v-' + v + '">' + tc('gifts.verdict.' + v, v) + '</em>' + (row.bonus ? ' +' + row.bonus : ''), null, ' log');
+            var when = document.createElement('small'); when.textContent = new Date(row.at).toLocaleDateString(); el.appendChild(when);
+            root.appendChild(el);
+          });
+        } else {
+          var items = Gifts.bagItems();
+          if (!items.length) {
+            var e1 = document.createElement('p'); e1.className = 'gift-empty';
+            e1.textContent = tc('gifts.bagEmpty', 'Your bag is empty. Buy something in the shop.');
+            root.appendChild(e1);
+          }
+          items.forEach(function (it) {
+            root.appendChild(tile(it.gift, '\u00d7' + it.n + ' \u00b7 ' + tc('gifts.give', 'Tap to give'), function () { App._giveGift(it.gift); }));
+          });
+        }
+      });
+    },
+
+    _giveGift: function (g) {
+      if (App.speaking) return;
+      if (!Config.section('llm').apiKey) { App.toast(I18n.t('toast.needKey'), true); App.showView('settings'); return; }
+      App.showView('talk');
+      App._giftFloat(g);
+      App.speaking = true;
+      document.getElementById('btn-send').disabled = true;
+      App.showTyping();
+      var text = Gifts.turnText(g);
+      App._lastText = text;
+      App._turn(text, Gifts.give(Characters.activeId(), g.id, App.chatOpts())).then(function (reply) {
+        if (reply && reply.gift && reply.gift.bonus && window.Bond) Bond.refresh();
+      });
+    },
+
+    /* the gift icon drifts up from the input toward her and fades */
+    _giftFloat: function (g) {
+      var host = document.getElementById('view-talk');
+      if (!host) return;
+      var f = document.createElement('img');
+      f.className = 'gift-float';
+      f.src = g.icon || 'assets/icons/present.svg'; f.alt = '';
+      host.appendChild(f);
+      if (window.Sound) Sound.se('touch_start');
+      setTimeout(function () { if (f.parentNode) f.parentNode.removeChild(f); }, 1500);
+    },
+
+    _addGiftDialog: function () {
+      var tc = function (k, f) { return I18n.tc(k, f); };
+      var icon = null;
+      App.openModal({
+        title: tc('gifts.add', '+ Add gift'),
+        okLabel: tc('form.create', 'Create'),
+        build: function (body) {
+          body.appendChild(App._fieldEl(tc('gifts.name', 'Name'), '<input id="gift-name" type="text" maxlength="40">'));
+          body.appendChild(App._fieldEl(tc('gifts.tags', 'Tags (what it is, comma separated)'), '<input id="gift-tags" type="text" placeholder="sweet, food, handmade">'));
+          var opts = Gifts.TIERS.map(function (t) { return '<option value="' + t + '">' + tc('gifts.tier.' + t, t) + '</option>'; }).join('');
+          body.appendChild(App._fieldEl(tc('gifts.tierLabel', 'Rarity'), '<select id="gift-tier">' + opts + '</select>'));
+          body.appendChild(App._fieldEl(tc('gifts.price', 'Price (coins)'), '<input id="gift-price" type="number" min="0" max="999" value="20">'));
+          var row = document.createElement('div'); row.className = 'pfp-row';
+          var img = document.createElement('img'); img.src = 'assets/icons/present.svg'; img.className = 'gift-prev';
+          var inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.style.display = 'none';
+          var b = document.createElement('button'); b.type = 'button'; b.className = 'btn'; b.textContent = tc('gifts.image', 'Image');
+          b.onclick = function () { inp.click(); };
+          inp.onchange = function () {
+            var f = inp.files[0]; inp.value = '';
+            if (f) App._shrinkImage(f, 128, function (d) { if (d) { icon = d; img.src = d; } else App.toast('not an image', true); });
+          };
+          row.appendChild(img); row.appendChild(b); row.appendChild(inp);
+          body.appendChild(row);
+        },
+        onOk: function (body) {
+          var name = (body.querySelector('#gift-name').value || '').trim();
+          if (!name) { App.toast(tc('gifts.needName', 'Give it a name'), true); return false; }
+          Gifts.addCustom({ name: name, tags: body.querySelector('#gift-tags').value, tier: body.querySelector('#gift-tier').value,
+                            price: body.querySelector('#gift-price').value, icon: icon });
+          App._giftTab = 'shop';
+          App.renderGifts();
+        }
+      });
+    },
+
     /* ------------------------------------------------------------- skins */
     renderSkins: function () {
-      if (!document.getElementById('skin-grid')) return;
+      var view = document.getElementById('view-skin');
+      if (!document.getElementById('skin-grid') || !view || !view.classList.contains('active')) return;
+      var card = window.Characters ? Characters.active() : null;
+      var addBtn = document.getElementById('btn-skin-add');
+      if (card && card.pack && card.pack.renderer === 'cubism') {
+        if (addBtn) addBtn.classList.toggle('hidden', card.pack.source !== 'idb');
+        return App._renderOutfits(card);
+      }
+      if (addBtn) addBtn.classList.add('hidden');
+      App._renderRyzaSkins();
+    },
+
+    /* Live2D characters: one tile per outfit (thumbnail captured from the
+       stage after it is worn), the active one lit, "+ Add outfit" for
+       imported packs. */
+    _renderOutfits: function (card) {
+      var root = App._el('skin-grid');
+      root.innerHTML = '';
+      var thumbs = Outfits.thumbs(card.id);
+      Outfits.list(card).then(function (list) {
+        list.forEach(function (o) {
+          var el = document.createElement('div');
+          el.className = 'skin-card outfit' + (o.active ? ' active' : '');
+          var pic = document.createElement('div');
+          pic.className = 'outfit-pic';
+          if (thumbs[o.id]) {
+            var img = document.createElement('img');
+            img.src = thumbs[o.id]; img.alt = '';
+            pic.appendChild(img);
+          } else {
+            pic.classList.add('empty');
+            var ini = document.createElement('img'); ini.src = App._initialAvatar(o.name); ini.alt = ''; ini.className = 'outfit-initial';
+            pic.appendChild(ini);
+          }
+          el.appendChild(pic);
+          var cap = document.createElement('div');
+          cap.className = 'skin-cap';
+          var nm = document.createElement('span'); nm.className = 'outfit-name'; nm.textContent = o.name;
+          var st = document.createElement('span'); st.className = 'skin-id';
+          st.textContent = o.active ? I18n.tc('skin.wearing', 'Wearing') : I18n.tc('skin.tapWear', 'Tap to wear');
+          cap.appendChild(nm); cap.appendChild(st);
+          el.appendChild(cap);
+          el.onclick = function () { if (!o.active) App._wearOutfit(card, o); };
+          root.appendChild(el);
+        });
+        if (card.pack.source === 'idb') {
+          var add = document.createElement('div');
+          add.className = 'skin-card outfit add';
+          add.innerHTML = '<div class="outfit-pic empty"><b>+</b></div><div class="skin-cap"><span class="outfit-name"></span></div>';
+          add.querySelector('.outfit-name').textContent = I18n.tc('skin.add', '+ Add outfit');
+          add.onclick = function () { var inp = document.getElementById('skin-add-zip'); if (inp) inp.click(); };
+          root.appendChild(add);
+        }
+      });
+    },
+
+    _wearOutfit: function (card, o) {
+      var veil = document.getElementById('skin-veil');
+      if (veil) veil.classList.add('veil-on');
+      if (window.Sound) Sound.se('skin_change');
+      Outfits.wear(card, o.id).then(function (next) {
+        return Stage.loadPack(next).then(function () { return next; });
+      }).then(function (next) {
+        /* the thumbnail comes from the live stage, once the model is up */
+        setTimeout(function () {
+          if (veil) veil.classList.remove('veil-on');
+          var url = (window.CubismBackend && CubismBackend.snapshot) ? CubismBackend.snapshot(180, 240) : null;
+          if (url) Outfits.setThumb(next.id, o.id, url);
+          App.renderSkins();
+        }, 420);
+      }).catch(function (e) {
+        if (veil) veil.classList.remove('veil-on');
+        App.toast(I18n.tc('skin.fail', 'Could not change outfit: ') + (e && e.message ? e.message : e), true);
+      });
+    },
+
+    _addOutfit: function (file) {
+      var card = Characters.active();
+      if (!card || !card.pack || card.pack.source !== 'idb') return;
+      Dialog.prompt(I18n.tc('skin.name', 'Outfit name'), String(file.name || '').replace(/\.zip$/i, ''), { title: I18n.tc('skin.add', '+ Add outfit') }).then(function (v) {
+        var name = (v || '').trim();
+        if (!name) return;
+        App.toast('importing…');
+        return PackFS.fromZip(file).then(function (files) { return Outfits.add(card, files, name); }).then(function (next) {
+          App.toast(name);
+          App.renderSkins();
+        });
+      }).catch(function (e) { App.toast('import failed: ' + (e && e.message ? e.message : e), true); });
+    },
+
+    _renderRyzaSkins: function () {
       fetch('assets/_index/skins.json').then(function (r) { return r.json(); })
         .then(function (skins) {
           var root = App._el('skin-grid');
@@ -2215,6 +2763,11 @@
         App.buildSettings();
         App._tickTime();
       });
+      if ((Config.section('app').timeMode) === 'manual') {
+        App._select(w, I18n.tc('settings.tod', 'Time of day'), Config.section('state').tod || 'aft',
+          ['mor', 'aft', 'eve', 'ngt'].map(function (k) { return { v: k, t: World.todLabel(k) }; }),
+          function (v) { App._setTod(v); });
+      }
       if ((Config.section('app').timeMode) === 'flow') {
         App._select(w, T('settings.flowSpeed'), String(Config.section('app').flowSpeed || 60), [
           { v: '15',  t: T('speed.slow') },
@@ -2400,6 +2953,11 @@
       bZip.onclick = function () { zipIn.click(); };
       bDir.onclick = function () { dirIn.click(); };
       zipIn.onchange = function () { if (zipIn.files[0]) App._importPack(PackFS.fromZip(zipIn.files[0]), zipIn.files[0].name); zipIn.value = ''; };
+      var addBtn = document.getElementById('btn-skin-add'), addZip = document.getElementById('skin-add-zip');
+      if (addBtn && addZip) {
+        addBtn.onclick = function () { addZip.click(); };
+        addZip.onchange = function () { if (addZip.files[0]) App._addOutfit(addZip.files[0]); addZip.value = ''; };
+      }
       dirIn.onchange = function () { if (dirIn.files.length) App._importPack(PackFS.fromFileList(dirIn.files), dirIn.files[0].webkitRelativePath.split('/')[0]); dirIn.value = ''; };
       row.appendChild(bZip);
       /* the Android file picker has no folder mode */
@@ -2461,6 +3019,23 @@
 
     /* Portrait: an image file, shrunk to 256 px and stored on the card as a
        data URL (card.pfp — the log/drawer avatar). */
+    /* Read an image file, cover-fit it into a side x side square, return a
+       jpeg data URL through cb(dataUrl) (cb(null) when it is not an image). */
+    _shrinkImage: function (file, side, cb) {
+      var url = URL.createObjectURL(file);
+      var im = new Image();
+      im.onload = function () {
+        var c = document.createElement('canvas'); c.width = side; c.height = side;
+        var k = Math.max(side / im.width, side / im.height);
+        var dw = im.width * k, dh = im.height * k;
+        c.getContext('2d').drawImage(im, (side - dw) / 2, (side - dh) / 2, dw, dh);
+        URL.revokeObjectURL(url);
+        cb(c.toDataURL('image/jpeg', 0.85));
+      };
+      im.onerror = function () { URL.revokeObjectURL(url); cb(null); };
+      im.src = url;
+    },
+
     _portraitRow: function (w, card, save) {
       var tc = function (k, f) { return I18n.tc(k, f); };
       var row = document.createElement('div'); row.className = 'pfp-row';
@@ -2473,19 +3048,10 @@
       inp.onchange = function () {
         var f = inp.files[0]; inp.value = '';
         if (!f) return;
-        var url = URL.createObjectURL(f);
-        var im = new Image();
-        im.onload = function () {
-          var side = 256, c = document.createElement('canvas'); c.width = side; c.height = side;
-          var k = Math.max(side / im.width, side / im.height);
-          var dw = im.width * k, dh = im.height * k;
-          c.getContext('2d').drawImage(im, (side - dw) / 2, (side - dh) / 2, dw, dh);
-          URL.revokeObjectURL(url);
-          var data = c.toDataURL('image/jpeg', 0.85);
+        App._shrinkImage(f, 256, function (data) {
+          if (!data) { App.toast('not an image', true); return; }
           img.src = data; save(data); App.applyCharacter(Characters.get(card.id));
-        };
-        im.onerror = function () { URL.revokeObjectURL(url); App.toast('not an image', true); };
-        im.src = url;
+        });
       };
       var bClr = document.createElement('button'); bClr.type = 'button'; bClr.className = 'btn';
       bClr.textContent = tc('chara.portraitClear', 'Clear');
@@ -2591,6 +3157,7 @@
       var idle = maps.idle || {};
       prefixRow(tc('chara.idleLoop', 'Loop'), idle.loop || [], function (list) { editPack(function (p) { p.idle = p.idle || {}; p.idle.loop = list; }, true); });
       prefixRow(tc('chara.idleAmbient', 'Ambient (random clips)'), idle.ambient || [], function (list) { editPack(function (p) { p.idle = p.idle || {}; p.idle.ambient = list; }, true); });
+      prefixRow(tc('chara.sitLoop', 'Sitting clip (empty = she can only stand)'), (pk.posture && pk.posture.sit) || [], function (list) { editPack(function (p) { p.posture = p.posture || {}; p.posture.sit = list; }, true); App.updateHud(); });
       var gap = idle.gap || [9, 24];
       App._range(w, tc('chara.idleGap', 'Seconds between ambient clips') + ' (' + gap[0] + '\u2013' + gap[1] + ')', gap[1], function (v) {
         editPack(function (p) { p.idle = p.idle || {}; p.idle.gap = [Math.max(3, Math.round(v / 2.5)), Math.round(v)]; }, true);
@@ -2611,7 +3178,10 @@
       }).then(function (files) {
         var m3 = PackFS.findModel3(files);
         if (!m3.length) throw new Error('no .model3.json in the pack');
-        var pickP = m3.length > 1 ? Dialog.choose(tc('chara.whichModel', 'Which model?'), m3) : Promise.resolve(m3[0]);
+        /* several model3 = outfits; the export's live2d-character.json picks
+           the default, otherwise ask which one to open with */
+        var hasChara = Object.keys(files).some(function (k) { return /(^|\/)live2d-character\.json$/i.test(k); });
+        var pickP = (m3.length > 1 && !hasChara) ? Dialog.choose(tc('chara.whichModel', 'Which model?'), m3) : Promise.resolve(m3[0]);
         return pickP.then(function (model) {
           if (!model) throw new Error('cancelled');
           return Importer.fromFiles(files, { name: name, model: model });

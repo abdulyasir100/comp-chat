@@ -22,7 +22,14 @@
       return PackFS.put(id, name, files).then(function (rec) {
         /* the stored paths may have lost a common root; re-find the model3 */
         var stored = rec.files.filter(function (r) { return /\.model3\.json$/i.test(r); }).sort();
-        var m3 = stored.filter(function (r) { return model3.indexOf(r) !== -1 || r.indexOf(model3) !== -1; })[0] || stored[0];
+        var picked = stored.filter(function (r) { return model3.indexOf(r) !== -1 || r.indexOf(model3) !== -1; })[0] || stored[0];
+        /* several model3 = several outfits (a Dreams export); the export's
+           live2d-character.json names them and picks the default */
+        var charaP = rec.files.indexOf('live2d-character.json') !== -1
+          ? PackFS.readJson(id, 'live2d-character.json').catch(function () { return null; }) : Promise.resolve(null);
+        return charaP.then(function (chara) {
+        var outfits = global.Outfits ? Outfits.fromModels(stored, chara) : [];
+        var m3 = (global.Outfits && Outfits.defaultModel(outfits, chara, opts.model ? picked : null)) || picked;
         return PackFS.readJson(id, m3).then(function (json) {
           var caps = Capabilities.inspectModel3(json);
           var dir = m3.indexOf('/') !== -1 ? m3.slice(0, m3.lastIndexOf('/') + 1) : '';
@@ -43,6 +50,7 @@
             var pack = {
               renderer: 'cubism', source: 'idb', packId: id, path: '', model: m3,
               motions: idxRel, emotions: auto.emotions, idle: auto.idle, tap: auto.tap,
+              outfits: outfits.length > 1 ? outfits : [],
               media_required: false, imported: Date.now(), bytes: rec.bytes
             };
             var card = Object.assign({
@@ -52,8 +60,9 @@
               voice: { provider: 'omnivoice', ref_audio: null, instruct: null }
             }, opts.card || {}, { id: id, pack: pack, emotions: Capabilities.emotionList(auto.emotions) });
             Characters.upsert(card);
-            return { card: Characters.get(id), caps: caps, pack: pack, model3s: stored, motions: motionNames.length };
+            return { card: Characters.get(id), caps: caps, pack: pack, model3s: stored, motions: motionNames.length, outfits: outfits.length };
           });
+        });
         });
       });
     },

@@ -95,6 +95,16 @@
     else if (profile.callMe) L.push('Call the person you are talking to "' + profile.callMe + '".');
     if (profile.background) L.push('About them: ' + profile.background);
     if (profile.hobby) L.push('Their hobbies: ' + profile.hobby);
+    /* the onboarding answers used to stop at the two lines above */
+    var bits = [];
+    if (profile.gender) bits.push(profile.gender);
+    if (profile.birthday) bits.push('birthday ' + profile.birthday);
+    if (profile.appearance) bits.push('looks: ' + profile.appearance);
+    if (bits.length) L.push('They are ' + bits.join(', ') + '.');
+    var interest = [profile.interest, profile.interestExtra].filter(Boolean).join(', ');
+    if (interest) L.push('Into: ' + interest);
+    if (profile.personality) L.push('Their personality: ' + profile.personality);
+    if (profile.futureGoals) L.push('Their goals: ' + profile.futureGoals);
     return L.join('\n');
   }
 
@@ -105,10 +115,14 @@
     var em = emotions && emotions.length ? emotions.join('|') : 'neutral';
     return [
       'Respond with ONLY a JSON object, no prose, no fences:',
-      '{"line": {' + keys + '}, "emotion": "' + em + '", "verdict": "loved|liked|neutral|annoyed"}',
+      '{"line": {' + keys + '}, "emotion": "' + em + '", "verdict": "loved|liked|neutral|annoyed", "remember": []}',
       'Every language version must convey the SAME meaning and tone, each within ' + words + ' words. ' +
       'Write naturally in each language (not a stiff word-for-word translation).',
       '`emotion` is the face you make while saying it — pick ONE from the list.',
+      '`remember`: lasting facts worth keeping from THIS message, as ["subject","relation","object"] triples — ' +
+      'up to 3, usually none. "user" is the person talking to you, "me" is you. Short lowercase relations ' +
+      '(likes, dislikes, has, lives in, works at, is named, plans to, promised). Only things that will still ' +
+      'matter next week; never small talk, never what you said.',
       SPOKEN_LINE_RULE
     ].join('\n');
   }
@@ -128,7 +142,7 @@
       return out;
     },
 
-    /* opts: { card, mode, style, bondLevel, langs, emotions, memoryBlock, profile, extra, hasAction } */
+    /* opts: { card, mode, style, bondLevel, langs, emotions, memoryBlock, graphBlock, profile, extra, hasAction } */
     system: function (opts) {
       opts = opts || {};
       var card = opts.card || {};
@@ -150,6 +164,8 @@
       if (CLOSENESS[lvl]) S.push('How close you are to them — ' + CLOSENESS[lvl]);
       S.push(VERDICT_RULE);
       S.push(outputSpec(langs, opts.emotions, words));
+      if (opts.graphBlock) S.push(opts.graphBlock);
+      if (opts.graphBlock) S.push(opts.graphBlock);
       if (opts.memoryBlock) S.push(opts.memoryBlock);
       if (opts.extra) S.push(String(opts.extra));
       return S.filter(Boolean).join('\n\n');

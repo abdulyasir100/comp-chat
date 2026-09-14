@@ -1,0 +1,154 @@
+[
+  {
+    "id": "coffee",
+    "name": "Hot coffee",
+    "tags": [
+      "drink",
+      "warm",
+      "coffee"
+    ],
+    "tier": "common",
+    "price": 10,
+    "icon": "coffee.svg"
+  },
+  {
+    "id": "tea",
+    "name": "Herbal tea",
+    "tags": [
+      "drink",
+      "warm",
+      "tea",
+      "calm"
+    ],
+    "tier": "common",
+    "price": 10,
+    "icon": "tea.svg"
+  },
+  {
+    "id": "cake",
+    "name": "Strawberry cake",
+    "tags": [
+      "food",
+      "sweet",
+      "cake"
+    ],
+    "tier": "uncommon",
+    "price": 25,
+    "icon": "cake.svg"
+  },
+  {
+    "id": "ramen",
+    "name": "Ramen night",
+    "tags": [
+      "food",
+      "ramen",
+      "savory",
+      "cozy"
+    ],
+    "tier": "uncommon",
+    "price": 25,
+    "icon": "ramen.svg"
+  },
+  {
+    "id": "flowers",
+    "name": "Flower bouquet",
+    "tags": [
+      "flowers",
+      "romantic",
+      "pretty"
+    ],
+    "tier": "uncommon",
+    "price": 30,
+    "icon": "flowers.svg"
+  },
+  {
+    "id": "letter",
+    "name": "Handwritten letter",
+    "tags": [
+      "personal",
+      "words",
+      "romantic"
+    ],
+    "tier": "uncommon",
+    "price": 20,
+    "icon": "letter.svg"
+  },
+  {
+    "id": "book",
+    "name": "A good book",
+    "tags": [
+      "book",
+      "reading",
+      "quiet",
+      "story"
+    ],
+    "tier": "uncommon",
+    "price": 30,
+    "icon": "book.svg"
+  },
+  {
+    "id": "plush",
+    "name": "Bear plush",
+    "tags": [
+      "cute",
+      "plush",
+      "soft",
+      "toy"
+    ],
+    "tier": "rare",
+    "price": 45,
+    "icon": "plush.svg"
+  },
+  {
+    "id": "headphones",
+    "name": "Headphones",
+    "tags": [
+      "music",
+      "tech",
+      "singing",
+      "gadget"
+    ],
+    "tier": "rare",
+    "price": 60,
+    "icon": "headphones.svg"
+  },
+  {
+    "id": "game",
+    "name": "Retro game cartridge",
+    "tags": [
+      "games",
+      "gaming",
+      "retro",
+      "competition"
+    ],
+    "tier": "rare",
+    "price": 55,
+    "icon": "game.svg"
+  },
+  {
+    "id": "star",
+    "name": "Falling star charm",
+    "tags": [
+      "star",
+      "lucky",
+      "sky",
+      "dream"
+    ],
+    "tier": "epic",
+    "price": 120,
+    "icon": "star.svg"
+  },
+  {
+    "id": "ring",
+    "name": "Silver ring",
+    "tags": [
+      "jewelry",
+      "promise",
+      "romantic",
+      "forever"
+    ],
+    "tier": "epic",
+    "price": 200,
+    "icon": "ring.svg"
+  }
+]

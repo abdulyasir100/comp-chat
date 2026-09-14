@@ -94,6 +94,8 @@
       out.verdict = verdicts.indexOf(vd) !== -1 ? vd : 'neutral';
 
       if (j.state && typeof j.state === 'object' && !Array.isArray(j.state)) out.state = j.state;
+      /* lasting facts the model wants kept (engine/graph.js) */
+      out.facts = (global.Graph && Array.isArray(j.remember)) ? Graph.cleanFacts(j.remember) : [];
 
       out.ok = !!out.text;
       return out;

@@ -405,31 +405,63 @@
         var wClip = a.w * m[0];
         var hClip = a.h * m[5] * aspect;
         var usable = 2 * (1 - this.margin);
-        /* Fit the art's HEIGHT into what is visible above the conversation
-           panel, then apply the card's zoom. Fitting min(width, height) made
-           a portrait phone width-bound: the head spanned 127% of the screen
-           while a landscape desktop showed a slim 34%-wide figure. Width is
-           only a cap — never crop her sideways. */
-        var vis = Math.max(0.4, 1 - (this.panelFrac || 0));
-        var k = (usable * vis / hClip) * this.zoom;
+        /* Fit the art's HEIGHT to the canvas, then the card's zoom: with the
+           top anchor her legs run down behind the conversation panel (a
+           figure that ends above the panel looks like it is floating). Width
+           is only a cap so a portrait phone never crops her sideways — the
+           old min(width, height) fit made the head span 127% of a phone. */
+        var k = (usable / hClip) * this.zoom;
         if (wClip * k > usable) k = usable / wClip;
         var cx = a.cx * m[0] + m[12];
         var cy = (a.cy * m[5] + m[13]) * aspect;
         P.scaleRelative(k, k);
         P.translateRelative(-k * cx, -k * cy + this.offsetY);
         if (this.anchor === 'top') {
-          /* put the top of the art just under the top bar; whatever does not
-             fit is cropped at the bottom (the real app frames her this way).
-             translateRelative works in pre-scale units, so measure the unit
-             with transformY instead of guessing the matrix convention. */
-          var topY = a.cy + a.h / 2;
-          var y0 = P.transformY(topY);
-          P.translateRelative(0, 1);
-          var unit = P.transformY(topY) - y0;
-          var d = (1 - this.topMargin) - y0;
-          P.translateRelative(0, -1 + (unit ? d / unit : 0));
+          this._anchorTop(P, a);
+          /* Half-body art (cut at the thighs) would end above the chat panel
+             and float. Make sure the art's bottom edge is BEHIND the panel:
+             slide her down while the head keeps its headroom, then scale up
+             for whatever is still short (the crop hides the cut edge). */
+          var pf = this.panelFrac || 0;
+          if (pf > 0) {
+            var want = (-1 + 2 * pf) - 0.08;                  /* just under the panel's top edge */
+            var bottomY = P.transformY(a.cy - a.h / 2);
+            if (bottomY > want) {
+              var topNow = P.transformY(a.cy + a.h / 2);
+              var unit2 = this._unitY(P, a);
+              var room = Math.max(0, topNow - (1 - this.topMargin - 0.30));
+              var shift = Math.min(bottomY - want, room);
+              if (unit2 && shift > 0) P.translateRelative(0, -shift / unit2);
+              bottomY = P.transformY(a.cy - a.h / 2);
+              if (bottomY > want + 0.001) {
+                topNow = P.transformY(a.cy + a.h / 2);
+                var f = Math.min(1.8, (topNow - want) / Math.max(0.05, topNow - bottomY));
+                if (f > 1) { P.scaleRelative(f, f); this._anchorTop(P, a); }
+              }
+            }
+          }
         }
         return P;
+      }
+
+      /* clip units per pre-scale unit along Y (translateRelative works in
+         pre-scale units; measure instead of guessing the matrix convention) */
+      _unitY(P, a) {
+        var y0 = P.transformY(a.cy);
+        P.translateRelative(0, 1);
+        var u = P.transformY(a.cy) - y0;
+        P.translateRelative(0, -1);
+        return u;
+      }
+
+      /* put the top of the art just under the top bar; whatever does not
+         fit is cropped at the bottom (the real app frames her this way) */
+      _anchorTop(P, a) {
+        var topY = a.cy + a.h / 2;
+        var y0 = P.transformY(topY);
+        var unit = this._unitY(P, a);
+        var d = (1 - this.topMargin) - y0;
+        if (unit) P.translateRelative(0, d / unit);
       }
 
       draw(gl, width, height) {
@@ -519,6 +551,7 @@
       return p.then(function (model) {
         if (CubismBackend._loading !== p) { model.release(); return null; }   // superseded
         CubismBackend.model = model;
+        CubismBackend._pack = pack;
         CubismBackend.setFraming(pack);
         /* effective maps: the pack's own, filled in by the automatic mapping */
         var auto = global.Capabilities ? Capabilities.autoPack(
@@ -627,6 +660,12 @@
         st.starting = true;
         m.playMotion(name, prio).then(function () { st.starting = false; }, function () { st.starting = false; });
       };
+      /* sitting: the pack's sit clip loops instead of the idle; nothing
+         ambient on top (it would stand her back up) */
+      if (CubismBackend._sitting) {
+        var sitName = CubismBackend.sitMotion();
+        if (sitName) { if (m.motionIdle) play(sitName, PRI.IDLE); return; }
+      }
       if (m.motionIdle) {
         var loopName = pickByPrefix(m.motionIndex, (idle.loop && idle.loop.length) ? idle.loop : ['idle-', 'Idle-'], true);
         if (loopName) { play(loopName, PRI.IDLE); return; }
@@ -642,6 +681,12 @@
       requestAnimationFrame(CubismBackend._frame);
       var dt = Math.min(0.1, (now - CubismBackend._last) / 1000) || 0;
       CubismBackend._last = now;
+      CubismBackend._render(dt);
+    },
+
+    /* One frame. Split from _frame so snapshot() can draw synchronously and
+       read the pixels before the (non-preserved) buffer is cleared. */
+    _render: function (dt) {
       var gl = CubismBackend.gl, c = CubismBackend.canvas, m = CubismBackend.model;
       if (!gl || !c) return;
       gl.clearColor(0, 0, 0, 0);
@@ -657,6 +702,24 @@
       CubismBackend._idleTick(dt);
       m.update(dt);
       m.draw(gl, c.width, c.height);
+    },
+
+    /* Thumbnail of the current model: draw a frame, crop the top-centre of
+       the canvas at 3:4 and scale it to w x h. Returns a data URL or null. */
+    snapshot: function (w, h) {
+      var c = CubismBackend.canvas, m = CubismBackend.model;
+      if (!c || !m || !c.width || !c.height) return null;
+      w = w || 180; h = h || 240;
+      try {
+        CubismBackend._render(0);
+        var cw = c.width, ch = c.height;
+        var sw = Math.min(cw, ch * w / h), sh = sw * h / w;
+        var out = document.createElement('canvas');
+        out.width = w; out.height = h;
+        var ctx = out.getContext('2d');
+        ctx.drawImage(c, (cw - sw) / 2, 0, sw, sh, 0, 0, w, h);
+        return out.toDataURL('image/jpeg', 0.82);
+      } catch (e) { return null; }
     },
 
     hitPartAt: function (cssX, cssY) {
@@ -697,6 +760,28 @@
       var w = Math.max(1, Math.floor(c.clientWidth * dpr)), h = Math.max(1, Math.floor(c.clientHeight * dpr));
       if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
       CubismBackend.gl.viewport(0, 0, w, h);
+    },
+
+    /* ---- posture: a pack may name sitting clips (pack.posture.sit, prefix
+       list; default "sit-"/"sitting-"/"chair-"). No clip = stand only. */
+    sitPrefixes: function () {
+      var p = CubismBackend._pack && CubismBackend._pack.posture;
+      var list = p && Array.isArray(p.sit) ? p.sit.filter(Boolean) : [];
+      return list.length ? list : ['sit-', 'sitting-', 'chair-'];
+    },
+    sitMotion: function () {
+      var m = CubismBackend.model;
+      if (!m) return null;
+      var pre = CubismBackend.sitPrefixes();
+      return pickByPrefix(m.motionIndex, pre, true) || pickByPrefix(m.motionIndex, pre, false);
+    },
+    canSit: function () { return !!CubismBackend.sitMotion(); },
+    setPosture: function (sitting) {
+      CubismBackend._sitting = !!sitting && CubismBackend.canSit();
+      var m = CubismBackend.model;
+      if (!m) return;
+      if (CubismBackend._sitting) { var s = CubismBackend.sitMotion(); if (s) m.playMotion(s, PRI.REACT).catch(function () {}); }
+      else { CubismBackend._idle.timer = 0; }
     },
 
     setHidden: function (on) {

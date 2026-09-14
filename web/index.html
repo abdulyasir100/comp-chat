@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Companion Chat</title>
-<link rel="stylesheet" href="css/app.css?v=cc9">
+<link rel="stylesheet" href="css/app.css?v=cc20">
 </head>
 <body>
 <div id="phone">
@@ -39,6 +39,9 @@
   <button type="button" class="side-item" id="sm-save"><span data-i18n="nav.save">Save data</span><i class="round"><img src="assets/icons/save_data.svg" alt=""></i></button>
   <button type="button" class="side-item" id="sm-full"><span data-i18n="nav.fullscreen">Fullscreen</span><i class="round"><img src="assets/icons/allscreen.svg" alt=""></i></button>
   <button type="button" class="side-item" id="sm-chara"><span data-i18n="nav.toggleChara">Show / hide character</span><i class="round"><img src="assets/icons/chara_hide.svg" alt="" id="ico-toggle-chara"></i></button>
+  <button type="button" class="side-item" id="sm-skin"><span data-i18n="nav.skin">Outfits</span><i class="round"><img src="assets/icons/skin.svg" alt=""></i></button>
+  <button type="button" class="side-item" id="sm-gifts"><span data-i18n="nav.gifts">Gifts</span><i class="round"><img src="assets/icons/present.svg" alt=""></i></button>
+  <button type="button" class="side-item" id="sm-places"><span data-i18n="nav.places">Places</span><i class="round"><img src="assets/icons/world_map.svg" alt=""></i></button>
 </div>
 
 <nav id="drawer">
@@ -65,6 +68,8 @@
 <main id="view-talk" class="view active">
   <div id="quick-btns">
     <button type="button" class="round-btn" id="btn-log-toggle" title="Conversation log"><img src="assets/icons/arrow_up.svg" alt=""></button>
+    <button type="button" class="round-btn posture-btn hidden" id="btn-posture" title="Sit / stand"><svg class="ico-stand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.5" r="2"/><path d="M12 7v7M8 10l4-2 4 2M12 14l-3 7M12 14l3 7"/></svg><svg class="ico-sit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="4.5" r="2"/><path d="M10 7v6h6l2 8M10 13H6l-1 8M6 13l4-6"/></svg></button>
+    <button type="button" class="round-btn gather-btn hidden" id="btn-gather" title="Look around"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h16l-1.6 9a2 2 0 0 1-2 1.7H7.6a2 2 0 0 1-2-1.7z"/><path d="M8 10l3-6M16 10l-3-6M9 14v3M12 14v3M15 14v3"/></svg><small id="gather-wait"></small></button>
   </div>
   <div id="log-panel">
     <div id="log-head">
@@ -110,6 +115,44 @@
 </section>
 
 
+<section id="view-skin" class="view">
+  <div class="view-head"><h2 data-i18n="skin.title">Outfits</h2>
+    <div class="head-actions">
+      <button class="mini-btn hidden" id="btn-skin-add" data-i18n="skin.add">+ Add outfit</button>
+      <input type="file" id="skin-add-zip" accept=".zip,application/zip" class="hidden">
+    </div>
+  </div>
+  <div id="skin-grid"></div>
+</section>
+
+<section id="view-gifts" class="view">
+  <div class="view-head"><h2 data-i18n="gifts.title">Gifts</h2>
+    <div class="head-actions">
+      <span class="coin-chip" id="gifts-coins" title="Coins"><img src="assets/icons/hud_coin.svg" alt=""><b id="gifts-coins-n">0</b></span>
+      <button class="mini-btn" id="btn-gift-add" data-i18n="gifts.add">+ Add gift</button>
+    </div>
+  </div>
+  <div class="gift-tabs" id="gift-tabs">
+    <button type="button" class="gift-tab active" data-tab="bag" data-i18n="gifts.bag">Bag</button>
+    <button type="button" class="gift-tab" data-tab="shop" data-i18n="gifts.shop">Shop</button>
+    <button type="button" class="gift-tab" data-tab="log" data-i18n="gifts.log">Given</button>
+  </div>
+  <div id="gift-grid"></div>
+</section>
+
+<section id="view-places" class="view">
+  <div class="view-head"><h2 data-i18n="places.title">Places</h2>
+    <div class="head-actions">
+      <button class="mini-btn" id="btn-place-add" data-i18n="places.add">+ Add background</button>
+    </div>
+  </div>
+  <div id="places-scroll">
+    <div id="world-fields" class="hidden"></div>
+    <h3 class="places-sub" id="places-sub" data-i18n="places.yours">Your backgrounds</h3>
+    <div id="place-grid"></div>
+  </div>
+</section>
+
 <section id="view-memory" class="view">
   <div class="view-head"><h2 data-i18n="memory.title">回忆</h2>
     <div class="head-actions">
@@ -118,7 +161,11 @@
       <button class="mini-btn" id="btn-memory-clear" data-i18n="memory.clearLog">清空对白</button>
     </div>
   </div>
-  <div id="memory-list"></div>
+  <div id="memory-scroll">
+    <h3 class="places-sub" id="graph-sub" data-i18n="graph.title">What she knows</h3>
+    <div id="memory-graph"></div>
+    <div id="memory-list"></div>
+  </div>
 </section>
 
 <section id="view-settings" class="view">
@@ -211,38 +258,45 @@
 <script src="vendor/jszip.min.js"></script>
 <script src="js/util.js?v=hash-2"></script>
 <script src="js/dialog.js?v=1"></script>
-<script src="js/config.js?v=cheat-2"></script>
-<script src="js/i18n.js?v=cheat-5"></script>
+<script src="js/config.js?v=cheat-4"></script>
+<script src="js/i18n.js?v=cheat-16"></script>
 <script src="js/api.js?v=undress-1"></script>
 <script src="js/memory.js?v=mem-1"></script>
 <script src="engine/store.js?v=1"></script>
 <script src="engine/affection.js?v=1"></script>
+<script src="engine/graph.js?v=1"></script>
 <script src="engine/guard.js?v=1"></script>
-<script src="engine/reply.js?v=2"></script>
-<script src="engine/prompt.js?v=2"></script>
+<script src="engine/reply.js?v=3"></script>
+<script src="engine/prompt.js?v=3"></script>
 <script src="engine/characters.js?v=5"></script>
-<script src="engine/packfs.js?v=1"></script>
+<script src="engine/packfs.js?v=3"></script>
+<script src="engine/outfits.js?v=1"></script>
+<script src="engine/gifts.js?v=2"></script>
+<script src="js/places.js?v=2"></script>
+<script src="js/gather.js?v=1"></script>
+<script src="js/mapview.js?v=3"></script>
+<script src="js/graphview.js?v=1"></script>
 <script src="engine/capabilities.js?v=2"></script>
-<script src="engine/importer.js?v=2"></script>
+<script src="engine/importer.js?v=3"></script>
 <script src="engine/providers/registry.js?v=1"></script>
 <script src="engine/providers/llm-openai.js?v=1"></script>
 <script src="engine/providers/tts-omnivoice.js?v=4"></script>
-<script src="engine/index.js?v=4"></script>
+<script src="engine/index.js?v=5"></script>
 <script src="renderers/stage.js?v=4"></script>
 <script src="renderers/spine.js?v=2"></script>
-<script src="renderers/cubism.js?v=7"></script>
+<script src="renderers/cubism.js?v=11"></script>
 <script src="js/game.js?v=cheat-1"></script>
 <script src="js/quests.js?v=cheat-1"></script>
 <script src="js/avatar.js?v=emotion-keep-2"></script>
 <script src="js/nsfw.js?v=undress-1"></script>
-<script src="js/world.js?v=tag-fill-1"></script>
-<script src="js/audio.js?v=route-7"></script>
+<script src="js/world.js?v=tag-fill-2"></script>
+<script src="js/audio.js?v=route-8"></script>
 <script src="js/alarm.js?v=vb-1"></script>
 <script src="js/onboarding.js?v=tut-3"></script>
 <script src="js/fx.js?v=1"></script>
 <script src="js/bond.js?v=1"></script>
 <script src="js/shell.js?v=2"></script>
 <script src="js/kbd.js?v=1"></script>
-<script src="js/app.js?v=cc11"></script>
+<script src="js/app.js?v=cc21"></script>
 </body>
 </html>

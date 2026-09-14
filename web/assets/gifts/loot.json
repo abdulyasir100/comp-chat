@@ -1,0 +1,14 @@
+{
+  "default": { "coinsChance": 0.35, "coins": [5, 15],
+    "gifts": [{ "id": "coffee", "w": 4 }, { "id": "tea", "w": 4 }, { "id": "book", "w": 2 }, { "id": "letter", "w": 1 }] },
+  "area_01": { "coinsChance": 0.35, "coins": [5, 15],
+    "gifts": [{ "id": "tea", "w": 5 }, { "id": "flowers", "w": 4 }, { "id": "coffee", "w": 3 }, { "id": "book", "w": 2 }, { "id": "cake", "w": 1 }] },
+  "area_02": { "coinsChance": 0.3, "coins": [8, 22],
+    "gifts": [{ "id": "ramen", "w": 4 }, { "id": "cake", "w": 3 }, { "id": "game", "w": 2 }, { "id": "headphones", "w": 1 }] },
+  "area_03": { "coinsChance": 0.3, "coins": [8, 20],
+    "gifts": [{ "id": "flowers", "w": 4 }, { "id": "plush", "w": 3 }, { "id": "letter", "w": 2 }, { "id": "book", "w": 2 }] },
+  "area_04": { "coinsChance": 0.25, "coins": [10, 30],
+    "gifts": [{ "id": "star", "w": 3 }, { "id": "headphones", "w": 2 }, { "id": "plush", "w": 2 }, { "id": "ring", "w": 1 }] },
+  "area_05": { "coinsChance": 0.3, "coins": [12, 35],
+    "gifts": [{ "id": "game", "w": 3 }, { "id": "headphones", "w": 2 }, { "id": "cake", "w": 2 }, { "id": "ring", "w": 1 }, { "id": "star", "w": 1 }] }
+}
