@@ -110,6 +110,7 @@
       card = card || Engine.active();
       if (!card) return;
       var name = I18n.characterName();
+      if (window.Bond) Bond.refresh();
       ['log-name', 'drawer-name', 'title-name'].forEach(function (id) {
         var el = document.getElementById(id);
         if (el) el.textContent = name;
@@ -229,6 +230,7 @@
       App._bindChrome();
       App._bindTalk();
       App._bindOverlays();
+      if (window.Bond) Bond.mount();
       Game.on(function () { App.refreshHud(); App._syncOpenViews(); });
 
       Promise.all([Config.hydrate(), World.init(), VoiceBank.load(), Sound.init(), Engine.init()]).then(function () {
@@ -1294,7 +1296,7 @@
           if (window.Nsfw) Nsfw.onTurn(reply);
           /* Omit = keep. A missed field must not snap the face back to neutral. */
           if (reply.emotion) Stage.setEmotion(reply.emotion, null);
-          if (reply.rank_up) App.toast('\u2665 ' + reply.rank_up.name);
+          if (window.Bond) Bond.onReply(reply);
           App.typeBubble(reply.text, function () {
             App.speakThen(reply.dubText || reply.text, reply.emotion);
           });

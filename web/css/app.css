@@ -657,3 +657,103 @@ body{font-weight:500}
 .field-row.tight{margin-bottom:15px}
 .pfp-row{display:flex;align-items:center;gap:12px;margin-bottom:15px}
 .pfp-row img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:1px solid var(--line);background:rgba(14,20,34,.9)}
+
+/* ------------------------------------------------------------- bond UI
+   (js/bond.js) — a glass chip above the conversation with a heart that
+   fills toward the next rank, floating deltas, a rank-up ribbon, and the
+   bond sheet with the ladder drawn as a constellation. */
+.bond-chip{position:absolute;left:12px;bottom:calc(var(--panel-h) + 14px);z-index:16;
+  display:flex;align-items:center;gap:9px;padding:6px 14px 6px 8px;border-radius:999px;
+  background:rgba(12,18,30,.62);border:1px solid var(--line);backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);color:var(--ink);pointer-events:auto;
+  box-shadow:0 6px 18px rgba(0,0,0,.35);transition:transform .15s,box-shadow .3s}
+.bond-chip:active{transform:scale(.96)}
+.bond-heart{width:26px;height:26px;display:block;flex:0 0 auto;filter:drop-shadow(0 0 6px rgba(var(--accent-rgb),.45))}
+.bond-heart svg{width:100%;height:100%;display:block;overflow:visible}
+.bond-heart-bg{fill:rgba(var(--accent-rgb),.14)}
+.bond-heart-fill{fill:var(--hot-2)}
+.bond-heart clipPath rect{transition:y .6s cubic-bezier(.2,.8,.2,1)}
+.bond-heart-line{fill:none;stroke:var(--accent);stroke-width:1.2;opacity:.9}
+.bond-text{display:flex;flex-direction:column;gap:4px;min-width:74px}
+.bond-text b{font-size:12.5px;letter-spacing:.06em;color:var(--gold);text-shadow:0 1px 3px rgba(0,0,0,.8)}
+.bond-bar{display:block;height:3px;border-radius:2px;background:rgba(var(--accent-rgb),.18);overflow:hidden}
+.bond-bar u{display:block;height:100%;width:0;border-radius:2px;text-decoration:none;
+  background:linear-gradient(90deg,var(--hot),var(--hot-2));box-shadow:0 0 8px rgba(var(--accent-rgb),.7);
+  transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.bond-chip.bonded .bond-heart-line{stroke:#ffd9f4}
+.bond-chip.bonded .bond-heart-fill{fill:#ff9ad5}
+.bond-chip.gain{animation:bond-gain .7s ease}
+.bond-chip.loss{animation:bond-loss .6s ease}
+@keyframes bond-gain{0%{box-shadow:0 0 0 0 rgba(var(--accent-rgb),.6)}45%{transform:scale(1.07)}
+  100%{box-shadow:0 0 0 18px rgba(var(--accent-rgb),0)}}
+@keyframes bond-loss{0%,100%{transform:none}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}
+  60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+.bond-pop{position:absolute;left:52px;bottom:calc(var(--panel-h) + 46px);z-index:17;font-weight:800;
+  font-size:15px;pointer-events:none;text-shadow:0 1px 4px rgba(0,0,0,.9);animation:bond-pop 1.3s ease-out forwards}
+.bond-pop.gain{color:var(--hot-2)}
+.bond-pop.loss{color:#ff8fa3}
+@keyframes bond-pop{0%{opacity:0;transform:translateY(6px) scale(.8)}15%{opacity:1;transform:translateY(0) scale(1.1)}
+  100%{opacity:0;transform:translateY(-34px) scale(1)}}
+
+.bond-ribbon{position:absolute;left:0;right:0;top:34%;z-index:40;display:flex;justify-content:center;
+  pointer-events:none;opacity:0;transform:translateY(8px);transition:opacity .35s,transform .35s}
+.bond-ribbon.show{opacity:1;transform:none}
+.bond-ribbon-inner{position:relative;overflow:hidden;min-width:min(78%,420px);text-align:center;padding:14px 28px 16px;
+  background:linear-gradient(90deg,rgba(11,15,26,0),rgba(14,20,34,.92) 18%,rgba(14,20,34,.92) 82%,rgba(11,15,26,0));
+  border-top:1px solid rgba(var(--accent-rgb),.45);border-bottom:1px solid rgba(var(--accent-rgb),.45)}
+.bond-ribbon-inner small{display:block;font-size:11.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--dim)}
+.bond-ribbon-inner b{display:block;margin-top:4px;font-size:26px;letter-spacing:.12em;color:#fff;
+  text-shadow:0 0 18px rgba(var(--accent-rgb),.9),0 2px 6px rgba(0,0,0,.8)}
+.bond-ribbon-inner::after{content:"";position:absolute;top:0;bottom:0;left:-40%;width:40%;
+  background:linear-gradient(100deg,rgba(255,255,255,0),rgba(255,255,255,.35),rgba(255,255,255,0));
+  transform:skewX(-18deg)}
+.bond-ribbon.show .bond-ribbon-inner::after{animation:bond-shine 1.4s .25s ease-out}
+@keyframes bond-shine{to{left:140%}}
+.bond-spark{position:absolute;width:5px;height:5px;border-radius:50%;background:#fff;opacity:0;
+  box-shadow:0 0 8px 2px rgba(var(--accent-rgb),.9);top:50%;left:50%}
+.bond-ribbon.show .bond-spark{animation:bond-spark 1.5s .1s ease-out}
+.bond-spark:nth-child(3){--dx:-150px;--dy:-38px}.bond-spark:nth-child(4){--dx:150px;--dy:-30px}
+.bond-spark:nth-child(5){--dx:-90px;--dy:34px}.bond-spark:nth-child(6){--dx:95px;--dy:36px}
+.bond-spark:nth-child(7){--dx:-40px;--dy:-52px}.bond-spark:nth-child(8){--dx:48px;--dy:52px}
+@keyframes bond-spark{0%{opacity:0;transform:translate(0,0) scale(.4)}20%{opacity:1}
+  100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1)}}
+
+.bond-scrim{position:absolute;inset:0;z-index:170;display:flex;align-items:flex-end;justify-content:center;
+  background:rgba(4,7,14,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;transition:opacity .25s}
+.bond-scrim.open{opacity:1}
+.bond-sheet{width:100%;max-width:460px;max-height:86%;overflow:auto;padding:18px 18px calc(18px + var(--safe-b));
+  background:linear-gradient(180deg,rgba(22,30,48,.96),rgba(11,15,26,.98));border:1px solid var(--line);
+  border-bottom:0;border-radius:22px 22px 0 0;box-shadow:0 -20px 60px rgba(0,0,0,.6);
+  transform:translateY(24px);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.bond-scrim.open .bond-sheet{transform:none}
+@media (min-width:700px) and (min-aspect-ratio:3/4){
+  .bond-scrim{align-items:center}
+  .bond-sheet{border-radius:22px;border-bottom:1px solid var(--line);max-height:80%}
+}
+.bond-head{display:flex;align-items:center;gap:14px;position:relative;padding-right:36px}
+.bond-heart.big{width:64px;height:64px;filter:drop-shadow(0 0 16px rgba(var(--accent-rgb),.55))}
+.bond-head-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.bond-head-text small{font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+.bond-head-text b{font-size:22px;letter-spacing:.08em;color:#fff}
+.bond-next{font-size:13px;color:var(--ink)}
+.bond-pts{font-size:11.5px;color:var(--dim)}
+.bond-close{position:absolute;right:0;top:0;width:32px;height:32px;border-radius:50%;color:var(--dim);
+  background:rgba(var(--accent-rgb),.08);border:1px solid var(--line)}
+.bond-ladder{list-style:none;margin:18px 0 0;padding:0 0 0 6px;position:relative}
+.bond-ladder::before{content:"";position:absolute;left:12px;top:10px;bottom:10px;width:1px;
+  background:linear-gradient(180deg,var(--accent),rgba(var(--accent-rgb),.12))}
+.bond-node{position:relative;display:flex;gap:14px;padding:9px 0 9px 0;opacity:.55}
+.bond-node.lit{opacity:1}
+.bond-star{flex:0 0 auto;width:13px;height:13px;margin-top:4px;border-radius:50%;background:rgba(var(--accent-rgb),.18);
+  border:1px solid rgba(var(--accent-rgb),.5);box-shadow:none;transition:.3s}
+.bond-node.lit .bond-star{background:var(--hot-2);border-color:#fff;box-shadow:0 0 10px 2px rgba(var(--accent-rgb),.8)}
+.bond-node.now .bond-star{animation:bond-twinkle 1.6s ease-in-out infinite}
+@keyframes bond-twinkle{0%,100%{box-shadow:0 0 10px 2px rgba(var(--accent-rgb),.8)}50%{box-shadow:0 0 18px 6px rgba(var(--accent-rgb),.95)}}
+.bond-node-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.bond-node-text b{font-size:14px;letter-spacing:.06em;color:var(--ink)}
+.bond-node.now .bond-node-text b{color:var(--gold)}
+.bond-node-text span{font-size:12.5px;color:var(--dim);line-height:1.5}
+.bond-node-text em{font-size:11px;font-style:normal;color:rgba(169,180,204,.7);letter-spacing:.08em}
+.bond-node-final .bond-star{border-radius:2px;transform:rotate(45deg) scale(.9)}
+.bond-btn{flex:0 0 auto;margin-top:8px;padding:9px 14px;font-size:13px;align-self:flex-start}
+.bond-done{color:#ff9ad5;font-weight:700}
