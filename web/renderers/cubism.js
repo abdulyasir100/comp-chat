@@ -181,7 +181,7 @@
         this.lookTarget = { x: 0, y: 0 };
         this.lookCurrent = { x: 0, y: 0 };
         this.mouthOpen = 0;
-        this.zoom = 1; this.margin = 0.06; this.offsetY = 0;
+        this.zoom = 1; this.margin = 0.06; this.offsetY = 0; this.panelFrac = 0;
         this.anchor = 'top'; this.topMargin = 0.10;
         this._ids = {};
         this._art = null;
@@ -405,7 +405,14 @@
         var wClip = a.w * m[0];
         var hClip = a.h * m[5] * aspect;
         var usable = 2 * (1 - this.margin);
-        var k = Math.min(usable / wClip, usable / hClip) * this.zoom;
+        /* Fit the art's HEIGHT into what is visible above the conversation
+           panel, then apply the card's zoom. Fitting min(width, height) made
+           a portrait phone width-bound: the head spanned 127% of the screen
+           while a landscape desktop showed a slim 34%-wide figure. Width is
+           only a cap — never crop her sideways. */
+        var vis = Math.max(0.4, 1 - (this.panelFrac || 0));
+        var k = (usable * vis / hClip) * this.zoom;
+        if (wClip * k > usable) k = usable / wClip;
         var cx = a.cx * m[0] + m[12];
         var cy = (a.cy * m[5] + m[13]) * aspect;
         P.scaleRelative(k, k);
@@ -684,6 +691,7 @@
     resize: function () {
       var c = CubismBackend.canvas;
       if (!c) return;
+      if (CubismBackend.model && global.Stage && Stage.panelFrac) CubismBackend.model.panelFrac = Stage.panelFrac();
       var z = (global.Avatar && Avatar._cssZoom) ? Avatar._cssZoom(c) : 1;
       var dpr = Math.max(1, window.devicePixelRatio || 1) * z;
       var w = Math.max(1, Math.floor(c.clientWidth * dpr)), h = Math.max(1, Math.floor(c.clientHeight * dpr));

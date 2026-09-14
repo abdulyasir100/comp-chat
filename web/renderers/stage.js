@@ -102,6 +102,14 @@
         if (b && b._inited && b.resize) safe(function () { b.resize(); });
       });
     },
+    /* share of the canvas height the bottom conversation panel covers
+       (measured by the app; the Spine camera and the Cubism framing both
+       fit the character into what is left above it) */
+    panelFrac: function () {
+      var a = global.Avatar;
+      var f = a && a._panelFrac;
+      return (typeof f === 'number' && f > 0 && f < 1) ? f : 0;
+    },
     hidden: function () { return hidden; },
     setHidden: function (on) {
       hidden = !!on;

@@ -15,10 +15,12 @@ local build would ship IP it must not. This copies:
 Everything else under web/ (Ryza spine/audio/images, private models, the
 gitignored assets/characters-private/ cards, imported packs, config) is left out. Output: output/web-stage (wiped every run).
 
---full stages ALL of web/ verbatim (every gitignored media file, every card,
-no index rewrite): the personal build for the owner's own devices, with the
-licensed Ryza media, BGM, backgrounds and the private cards. Never publish a
---full package.
+--full stages all of web/ verbatim (every gitignored media file, no index
+rewrite): the personal build for the owner's own devices, with the licensed
+Ryza media, BGM and backgrounds. The gitignored private cards
+(assets/characters-private/ and the model folders their pack.path points at)
+are still left out: they belong to the dev checkout and to the in-app zip
+import, never to a package. Never publish a --full package.
 
 usage: python scripts/stage_web.py [--full] [<out-dir>]
 """
@@ -38,6 +40,9 @@ ALLOW_IGNORED = [
 # Tracked in a checkout but never packaged (private character cards): add
 # "assets/characters/<id>/" entries here.
 DENY_PREFIX = []
+# Never packaged, even by --full: the private card tree and every model folder
+# a private card references (read from the cards, so no names live here).
+PRIVATE_DIR = "assets/characters-private/"
 ALLOW_EXT = {".ttf", ".otf", ".js", ".json", ".moc3", ".png", ".motion3.json",
              ".exp3.json", ".physics3.json", ".pose3.json", ".cdi3.json", ".userdata3.json"}
 
@@ -59,6 +64,29 @@ def walk_allow(rel):
                 yield os.path.relpath(p, WEB).replace(os.sep, "/")
 
 
+def private_prefixes():
+    """assets/characters-private/ plus each private card's pack.path (as dir prefixes)."""
+    import json
+    deny = [PRIVATE_DIR]
+    idx = os.path.join(WEB, PRIVATE_DIR, "index.json")
+    if not os.path.isfile(idx):
+        return deny
+    try:
+        ids = json.load(open(idx, encoding="utf-8"))
+    except Exception:
+        return deny
+    for cid in ids:
+        card = os.path.join(WEB, PRIVATE_DIR, str(cid), "character.json")
+        try:
+            pack = (json.load(open(card, encoding="utf-8")).get("pack") or {})
+        except Exception:
+            continue
+        path = str(pack.get("path") or "").strip().replace("\\", "/").strip("/")
+        if path and not path.startswith(".."):
+            deny.append(path + "/")
+    return deny
+
+
 def walk_all():
     for r, _d, files in os.walk(WEB):
         for f in files:
@@ -75,7 +103,8 @@ def main():
     seen = set()
     if full:
         rels = list(walk_all())
-        deny = []
+        deny = private_prefixes()
+        print("full build, private trees left out:", deny)
     else:
         rels = [p[len("web/"):] for p in tracked()]
         for a in ALLOW_IGNORED:

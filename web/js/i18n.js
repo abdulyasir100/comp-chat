@@ -107,7 +107,7 @@
       'tod.mor': '清晨', 'tod.aft': '白天', 'tod.eve': '黄昏', 'tod.ngt': '夜晚',
       'nav.welcome': '欢迎任务', 'nav.profile': '玩家档案', 'nav.newTalk': '新的对话',
       'nav.lang': '语言', 'nav.bag': '道具',
-      'nav.toggleChara': '显示/隐藏立绘', 'nav.fullscreen': '全屏',
+      'nav.toggleChara': '显示/隐藏立绘', 'nav.fullscreen': '全屏', 'shell.minimize': '最小化', 'shell.close': '关闭',
       'world.areas': '区域', 'world.empty': '谁也不在这里', 'world.back': '返回',
       'world.people': '此地的人', 'world.peopleOf': '在这里的人',
       'alarm.preview': '试听', 'alarm.on': '已启用', 'alarm.off': '已停用',
@@ -343,7 +343,7 @@
       'tod.mor': '朝', 'tod.aft': '昼', 'tod.eve': '夕', 'tod.ngt': '夜',
       'nav.welcome': 'ウェルカムミッション', 'nav.profile': 'プロフィール', 'nav.newTalk': '新しい会話',
       'nav.lang': '言語', 'nav.bag': '持ち物',
-      'nav.toggleChara': '立ち絵の表示切替', 'nav.fullscreen': '全画面',
+      'nav.toggleChara': '立ち絵の表示切替', 'nav.fullscreen': '全画面', 'shell.minimize': '最小化', 'shell.close': '閉じる',
       'world.areas': 'エリア', 'world.empty': 'だれもいない', 'world.back': '戻る',
       'world.people': 'この場所の人', 'world.peopleOf': 'いるひと',
       'alarm.preview': '試聴', 'alarm.on': 'オン', 'alarm.off': 'オフ',
@@ -575,7 +575,7 @@
       'tod.mor': 'Morning', 'tod.aft': 'Day', 'tod.eve': 'Dusk', 'tod.ngt': 'Night',
       'nav.welcome': 'Welcome', 'nav.profile': 'Profile', 'nav.newTalk': 'New talk',
       'nav.lang': 'Language', 'nav.bag': 'Bag',
-      'nav.toggleChara': 'Show / hide character', 'nav.fullscreen': 'Fullscreen',
+      'nav.toggleChara': 'Show / hide character', 'nav.fullscreen': 'Fullscreen', 'shell.minimize': 'Minimize', 'shell.close': 'Close',
       'world.areas': 'Areas', 'world.empty': 'Nobody here', 'world.back': 'Back',
       'world.people': 'Locals', 'world.peopleOf': 'People here',
       'alarm.preview': 'Preview', 'alarm.on': 'On', 'alarm.off': 'Off',
@@ -884,7 +884,7 @@
       'place.area_01': 'クーケン島周辺地域', 'place.area_02': 'クレリア地方', 'place.area_03': 'ネメッド地方',
       'place.area_04': '冥界オーリム', 'place.area_05': '王都周辺地域',
       'place.field_01_001': 'クーケン島', 'place.stage_01_001_04': 'ライザの家',
-      'input.hint': 'なんでも聞いてね', 'input.wake': 'タップしてライザを起こす',
+      'input.hint': '話しかけて。*行動* も書けるよ', 'input.wake': 'タップしてライザを起こす',
       'qobs.gather': 'いい素材は少し奥まで入らないと採れないみたい。',
       'qobs.craft': '調合は失敗しやすいから、材料は余裕をもって集めとこ。',
       'qobs.battle': 'あ、強いのが出たら逃げてもいいからね…たぶん。',
@@ -957,7 +957,7 @@
       'place.area_01': '库肯岛周边地区', 'place.area_02': '克莱莉亚地区', 'place.area_05': '王都周边地区',
       'place.field_01_001': '库肯岛', 'place.stage_01_001_04': '莱莎家', 'place.stage_01_002_01': '塔奥家门前',
       'item.bottle': '回复药（草豆）',
-      'input.hint': '和莱莎说点什么…', 'input.wake': '点一下叫醒莱莎',
+      'input.hint': '说点什么，或 *做点什么*', 'input.wake': '点一下叫醒莱莎',
       'qobs.gather': '好素材好像得往深处走才采得到。',
       'qobs.craft': '调和容易失手，材料先多备点吧。',
       'qobs.battle': '啊，遇到太强跑掉也没关系啦…大概。',
@@ -1029,7 +1029,7 @@
       'mem.cleared': 'Cleared "{title}"! +{exp}EXP / +{money}G', 'mem.lv': 'Reached Lv{lv}!',
       'place.area_01': 'Kurken Island Area', 'place.area_02': 'Cleria region',
       'place.field_01_001': 'Kurken Island', 'place.stage_01_001_04': 'Ryza\u2019s Home',
-      'input.hint': 'Ask me anything!', 'input.wake': 'Tap to wake Ryza',
+      'input.hint': 'Say something, or *do something*', 'input.wake': 'Tap to wake Ryza',
       'place.stage_01_002_01': 'In front of Tao\u2019s house',
       'qobs.gather': 'Good stuff grows deeper in, apparently.',
       'qobs.craft': 'Synthesis fails easy — gather spare materials first.',
@@ -1105,7 +1105,7 @@
     'place.area_01': '庫肯島周邊地區', 'place.area_02': '克萊莉亞地區', 'place.area_05': '王都周邊地區',
     'place.field_01_001': '庫肯島', 'place.stage_01_001_04': '萊莎家', 'place.stage_01_002_01': '塔奧家門前',
     'item.bottle': '回復藥（草豆）',
-    'input.hint': '點一下，和萊莎聊天', 'input.wake': '點一下叫醒萊莎',
+    'input.hint': '說點什麼，或 *做點什麼*', 'input.wake': '點一下叫醒萊莎',
     'toast.guide': '這裡是萊莎的夢中世界。',
     'toast.story': '你與萊莎的故事，終於要開始了。'
   };
@@ -1113,7 +1113,7 @@
 
   /* Official EN strings recovered from the same scan. */
   var EN_VERBATIM = {
-    'input.hint': 'Ask me anything!', 'input.wake': 'Tap to wake Ryza',
+    'input.hint': 'Say something, or *do something*', 'input.wake': 'Tap to wake Ryza',
     'place.stage_01_001_04': 'Ryza’s Home', 'place.stage_01_002_01': 'In front of Tao’s house',
     'place.area_01': 'Kurken Island Area', 'place.area_02': 'Cleria region',
     'place.field_01_001': 'Kurken Island'

@@ -134,7 +134,6 @@ async function handleRyza(root, request) {
 }
 
 let win = null;
-let topmost = false;
 let storeFile = '';
 
 function createWindow() {
@@ -179,15 +178,6 @@ function createWindow() {
   win.on('close', () => { webStorage.flush(); });
 }
 
-ipcMain.handle('shell:set-topmost', (_e, on) => {
-  topmost = !!on;
-  if (win) {
-    win.setAlwaysOnTop(topmost, 'screen-saver');
-    win.setFullScreenable(!topmost);
-  }
-  return topmost;
-});
-ipcMain.handle('shell:is-topmost', () => topmost);
 ipcMain.on('shell:minimize', () => { if (win) win.minimize(); });
 ipcMain.on('shell:close', () => { if (win) win.close(); });
 ipcMain.on('shell:fullscreen', (_e, on) => { if (win) win.setFullScreen(!!on); });

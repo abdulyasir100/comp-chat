@@ -33,6 +33,14 @@ html,body{margin:0;height:100%;overflow:hidden;background:#06090f;color:var(--in
   body.phone-frame #phone{width:min(100vw,calc(100vh * 760 / 1340));left:50%;right:auto;
     transform:translateX(-50%);border-radius:26px;
     box-shadow:0 0 0 1px rgba(255,255,255,.06),0 30px 80px rgba(0,0,0,.65)}
+  /* Default wide layout (desktop fullscreen): visual-novel style — the stage
+     fills the whole window, the conversation is a band across the bottom with
+     its text kept to a readable column, every other screen centres its form. */
+  body:not(.phone-frame) #phone{--panel-h:clamp(170px,24vh,260px)}
+  body:not(.phone-frame) #log-head,body:not(.phone-frame) #log-body,
+  body:not(.phone-frame) #log-dots,body:not(.phone-frame) #input-bar,
+  body:not(.phone-frame) #retry-bar{width:100%;max-width:920px;margin-left:auto;margin-right:auto}
+  body:not(.phone-frame) .form-wrap,body:not(.phone-frame) .view-head{margin-left:auto;margin-right:auto;max-width:720px;width:100%}
 }
 #stage.has-bg #scene-canvas{opacity:0}
 #stage{background-size:cover;background-position:center}
@@ -144,7 +152,6 @@ body.shell-electron #topbar button,
 body.shell-electron #topbar .hud-chip{-webkit-app-region:no-drag}
 #winctl{display:flex;gap:5px;align-items:center;flex:0 0 auto}
 .win-btn{width:32px;height:32px;font-size:13px;color:var(--dim);border-radius:9px}
-#win-pin.on{background:rgba(var(--accent-rgb),.28);border-color:var(--gold);color:var(--gold)}
 #win-close:hover{background:rgba(220,90,70,.3);color:#ffb0a0}
 
 #drawer{position:absolute;top:0;bottom:0;left:0;width:270px;max-width:82%;z-index:60;

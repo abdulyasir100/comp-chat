@@ -105,6 +105,9 @@ ok(/max 30 words/.test(sys), 'asmr word limit');
 ok(!/STRANGER/.test(sys), 'only one closeness line');
 const sysMem = Prompt.system({ card, langs: ['en'], memoryBlock: '## MEM\n- fact' });
 ok(sysMem.indexOf('## MEM') > sysMem.indexOf('Respond with ONLY'), 'memory after the static spec (prefix cache)');
+ok(!/wrap in \*asterisks\*/.test(sys), 'no action rule on a plain turn');
+ok(/wrap in \*asterisks\*/.test(Prompt.system({ card, langs: ['en'], hasAction: true })), 'action rule when the text narrates');
+ok(Prompt.hasAction('*hands you tea*') && !Prompt.hasAction('hi there') && !Prompt.hasAction('2*3'), 'hasAction detects *narration* only');
 eq(Prompt.langsFor('en', 'en'), ['en'], 'langsFor dedupes');
 eq(Prompt.langsFor('en', 'ja'), ['en', 'ja'], 'langsFor sub then dub');
 

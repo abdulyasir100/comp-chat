@@ -20,9 +20,9 @@
       ctl.appendChild(b);
       return b;
     };
-    var pin = mk('win-pin', '📌', '窗口置顶');
-    var min = mk('win-min', '—', '最小化');
-    var cls = mk('win-close', '✕', '关闭');
+    var t = function (k, d) { return (global.I18n && I18n.t) ? I18n.t(k) : d; };
+    var min = mk('win-min', '—', t('shell.minimize', 'Minimize'));
+    var cls = mk('win-close', '✕', t('shell.close', 'Close'));
     var settingsBtn = document.getElementById('btn-settings');
     if (settingsBtn && settingsBtn.parentNode === bar) {
       bar.insertBefore(ctl, settingsBtn.nextSibling);
@@ -30,15 +30,8 @@
       bar.appendChild(ctl);
     }
 
-    pin.onclick = function () {
-      global.ryzaShell.setTopmost(!pin.classList.contains('on')).then(function (on) {
-        pin.classList.toggle('on', !!on);
-      });
-    };
     min.onclick = function () { global.ryzaShell.minimize(); };
     cls.onclick = function () { global.ryzaShell.close(); };
-    global.ryzaShell.isTopmost().then(function (on) { pin.classList.toggle('on', !!on); });
-
     /* Drag the frameless window by the HUD strip; buttons stay clickable. */
     document.body.classList.add('shell-electron');
   }

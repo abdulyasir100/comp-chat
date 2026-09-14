@@ -97,7 +97,8 @@
       var system = Prompt.system({
         card: card, mode: opts.mode, style: opts.style,
         bondLevel: Affection.level(charId), langs: langs, emotions: card.emotions,
-        memoryBlock: mem, profile: opts.profile, extra: opts.extra
+        memoryBlock: mem, profile: opts.profile, extra: opts.extra,
+        hasAction: Prompt.hasAction(userText)
       });
       var messages = Prompt.messages(system, Engine.history(charId), userText);
       var llm = Providers.get('llm', card);

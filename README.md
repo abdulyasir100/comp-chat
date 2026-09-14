@@ -163,10 +163,12 @@ powershell -File scripts/build_desktop.ps1 -Full     # output/desktop/CompanionC
 powershell -File scripts/build_apk.ps1 -Full         # output/android/CompanionChat-<ver>-full.apk (~600 MB)
 ```
 
-`-Full` stages **all** of `web/` verbatim: Ryza's Spine media, BGM and voice banks, backgrounds,
-and every character card including the private ones. The privacy gates are skipped and the
-artifacts get a `-full` suffix so they cannot be mistaken for a release. Never upload a `-full`
-package anywhere. The plain builds stay scrubbed (tracked files + Cubism Core + fonts).
+`-Full` stages all of `web/` verbatim: Ryza's Spine media, BGM and voice banks, backgrounds.
+The gitignored private cards (`web/assets/characters-private/` and the model folders they point
+at) are still left out; they are for the dev checkout, and on a device you add them through the
+in-app zip import. The privacy gates are skipped and the artifacts get a `-full` suffix so they
+cannot be mistaken for a release. Never upload a `-full` package anywhere. The plain builds stay
+scrubbed (tracked files + Cubism Core + fonts).
 
 ## Tests
 

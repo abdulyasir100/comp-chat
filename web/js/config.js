@@ -91,7 +91,8 @@
     app: {
       lang: 'en',                    // en | zh | zh-tw | ja | hi | id | pt-br (companion-chat default: en)
       voice: true,
-      phoneFrame: true,              // centre a phone-shaped column on wide screens
+      wideColumn: false,             // wide screens: false = visual-novel band (default), true = centred phone column
+                                     // (renamed from phoneFrame, whose stored default was true)
       volume: 0.9,
       textSpeed: 30,                 // ms per character (×1; see TEXT_SPEEDS)
       vibration: true,

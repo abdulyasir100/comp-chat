@@ -18,7 +18,6 @@
   var RPG_MODES = { chat: 1, story: 1, immersive: 1 };
 
   var App = {
-    history: [],
     memory: [],
     audio: null,
     speaking: false,
@@ -87,8 +86,10 @@
        (starts at −1064) with a 1693u gap; every other scene ships one
        full-coverage backdrop quad. */
     _syncPanelFrac: function () {
-      if (!window.Avatar || Avatar._panelFrac) return;   // measure once
-      var vh = window.innerHeight || 1;
+      if (!window.Avatar) return;
+      /* CSS px of the viewport (the Electron zoom is divided back out so the
+         panel share matches what --panel-h actually covers on screen) */
+      var vh = (window.innerHeight || 1) / (App._uiZoom || 1);
       Avatar._panelFrac = Math.min(0.55, Math.min(340, Math.max(240, 0.34 * vh)) / vh);
     },
 
@@ -122,7 +123,7 @@
         var el = document.getElementById(id);
         if (el) el.src = src;
       });
-      document.body.classList.toggle('phone-frame', Config.section('app').phoneFrame !== false);
+      document.body.classList.toggle('phone-frame', Config.section('app').wideColumn === true);
     },
 
     /* A round initial-letter badge for characters without a portrait. */
@@ -185,7 +186,11 @@
       var w = window.innerWidth || el.clientWidth;
       var h = window.innerHeight || el.clientHeight;
       if (!w || !h) return;
-      var z = Math.min(w / 420, h / 860);
+      /* wide window (desktop fullscreen): scale by height only, otherwise a
+         1920-wide window drove the chrome to its max while the column stayed
+         phone-sized; narrow windows keep the min(w,h) fit */
+      var wide = w >= 700 && w / h >= 0.75;
+      var z = wide ? h / 860 : Math.min(w / 420, h / 860);
       z = Math.max(0.8, Math.min(1.25, z));
       if (Math.abs(z - (App._uiZoom || 1)) > 0.02) {
         App._uiZoom = z;
@@ -257,7 +262,9 @@
         App._fitUi();
         window.addEventListener('resize', function () {
           App._fitUi();
-          App._syncPanelFrac();
+          /* debounced: the camera re-solves once the drag settles, not per frame */
+          if (App._resizeT) clearTimeout(App._resizeT);
+          App._resizeT = setTimeout(function () { App._syncPanelFrac(); Stage.resize(); }, 200);
         });
 
         Onboarding.showTitle(function () {
@@ -278,7 +285,24 @@
       Sound.setRoute('talk');
       App._showDisclosure();
       if (fromOnboard) return;
-      App.greet();
+      if (!App._restoreTalk()) App.greet();
+    },
+
+    /* companion-chat: reopen where the conversation left off. The engine keeps
+       the last N turns per character (cc.<id>.history); show her last lines
+       as the panel pages instead of greeting again. Returns false when there
+       is nothing to restore (fresh character / after New Talk). */
+    _restoreTalk: function () {
+      if (!window.Engine || !Engine.transcript) return false;
+      var lines = Engine.transcript().filter(function (m) { return m.role === 'assistant' && m.text; });
+      if (!lines.length) return false;
+      lines = lines.slice(-5);
+      var last = lines.pop();
+      App._pages = lines.map(function (m) { return m.text; });
+      App._pageSel = App._pages.length - 1;
+      App.showBubble(last.text);
+      Stage.setEmotion(last.emotion || 'neutral', null);
+      return true;
     },
 
     _tickDay: function () {
@@ -1193,7 +1217,11 @@
         if (on) { req && req.call(el); } else { exit && exit.call(document); }
       }
       Config.set('app.fullscreen', on);
-      setTimeout(function () { if (window.Stage && Stage.resize) Stage.resize(); }, 350);
+      setTimeout(function () {
+        App._fitUi();
+        App._syncPanelFrac();
+        if (window.Stage && Stage.resize) Stage.resize();
+      }, 350);
     },
 
     _confirmNewTalk: function () {
@@ -1207,7 +1235,11 @@
           body.appendChild(p);
         },
         onOk: function () {
-          App.history = [];
+          /* real new conversation: pending turns roll into a memory card
+             first (nothing forgotten), then the model's history is cleared so
+             the next boot does not restore the old talk */
+          if (window.Memory && Memory.flushNow) { try { Memory.flushNow(); } catch (e) {} }
+          if (window.Engine) Engine.clearHistory();
           if (window.Nsfw) Nsfw.reset();
           App._pages = []; App._pageSel = -1;
           var dots = document.getElementById('log-dots');
@@ -1985,8 +2017,8 @@
         }
       }
 
-      App._switch(w, I18n.tc('settings.phoneFrame', 'Phone frame on wide screens'), Config.section('app').phoneFrame !== false,
-        function (v) { Config.set('app.phoneFrame', !!v); document.body.classList.toggle('phone-frame', !!v); Stage.resize(); });
+      App._switch(w, I18n.tc('settings.phoneFrame', 'Phone frame on wide screens'), Config.section('app').wideColumn === true,
+        function (v) { Config.set('app.wideColumn', !!v); document.body.classList.toggle('phone-frame', !!v); Stage.resize(); });
 
       App._title(w, T('settings.llm'));
       App._field(w, T('settings.baseUrl'), Config.section('llm').baseUrl,
@@ -2637,7 +2669,7 @@
       b2.className = 'btn danger'; b2.textContent = I18n.tc('chara.clearHistory', 'Clear conversation history');
       b2.onclick = function () {
         Dialog.confirm(I18n.tc('memory.clearConfirm', 'Clear this character\u2019s conversation history?'), { danger: true }).then(function (ok) {
-          if (ok) { App.history = []; if (window.Engine) Engine.clearHistory(); App.toast('Cleared'); }
+          if (ok) { if (window.Engine) Engine.clearHistory(); App.toast('Cleared'); }
         });
       };
       row.appendChild(b2);
@@ -2665,7 +2697,7 @@
         day: st.day,
         label: place ? (place.area + ' / ' + place.stage) : st.stage,
         settings: JSON.parse(Config.exportJSON()),
-        history: App.history,
+        history: window.Engine ? Engine.history() : [],
         memory: App.memory,
         longmem: window.Memory ? Memory.snapshot() : null,
         game: Game.snapshot(),
@@ -2676,7 +2708,7 @@
     _applySnapshot: function (snap) {
       if (!snap || !snap.settings) return;
       Config.importJSON(JSON.stringify(snap.settings));
-      App.history = snap.history || [];
+      if (window.Engine && Array.isArray(snap.history)) Store.set(Characters.activeId(), 'history', snap.history);
       App.memory = snap.memory || [];
       App.saveMemory();
       if (window.Memory) Memory.restore(snap.longmem);

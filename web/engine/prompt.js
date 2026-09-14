@@ -39,6 +39,13 @@
     'Never describe yourself from the outside. "She teases him and laughs it off" is WRONG — that is ' +
     'narration. "Ha! You wish, buddy." is RIGHT. No emotion tags, no stage directions, no asterisks.';
 
+  /* Only added when the incoming text has *asterisks*: the real RyzaChat
+     treats them as narration (an action or something happening), not speech. */
+  var ACTION_RULE =
+    'Text they wrap in *asterisks* is NOT something they said: it is what they DO or what HAPPENS ' +
+    'in the scene (*hands you a warm drink*, *it starts raining*). React to it in character, in ' +
+    'your spoken line, as if you just saw it happen. Never repeat or describe the narration back.';
+
   var VERDICT_RULE =
     'You ALSO report how what they said actually landed with YOU — judged by your own personality ' +
     'and taste, not by politeness:\n' +
@@ -121,7 +128,7 @@
       return out;
     },
 
-    /* opts: { card, mode, style, bondLevel, langs, emotions, memoryBlock, profile, extra } */
+    /* opts: { card, mode, style, bondLevel, langs, emotions, memoryBlock, profile, extra, hasAction } */
     system: function (opts) {
       opts = opts || {};
       var card = opts.card || {};
@@ -138,6 +145,7 @@
       S.push('Conversation mode: ' + mode.text + (opts.style === 'text'
              ? ' This is text, not read aloud, so a little longer is fine.'
              : ' Your line will be read aloud by a voice: keep it short and spoken, no lists.'));
+      if (opts.hasAction) S.push(ACTION_RULE);
       var lvl = opts.bondLevel | 0;
       if (CLOSENESS[lvl]) S.push('How close you are to them — ' + CLOSENESS[lvl]);
       S.push(VERDICT_RULE);
@@ -153,6 +161,9 @@
       var o = { line: reply.by || reply.text || '', emotion: reply.emotion || 'neutral' };
       return JSON.stringify(o);
     },
+
+    /* *narration* present in the player's text? (single source for engine + tests) */
+    hasAction: function (text) { return /\*[^*\n]+\*/.test(String(text || '')); },
 
     messages: function (system, history, userText) {
       return [{ role: 'system', content: system }]
